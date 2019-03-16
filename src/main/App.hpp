@@ -1,16 +1,19 @@
 #pragma once
-//#include <wx/wxprec.h>
 
 #include <wx/wx.h>
 
+class BackgroundPanel;
+
 class App : public wxApp
 {
-public:
-	App();
-	~App();
+
+private:
+	wxFrame *frame;
+	BackgroundPanel* drawPane;
 
 public:
-	bool OnInit() override;
+	bool OnInit();
+
 };
 
-wxIMPLEMENT_APP(App);
+IMPLEMENT_APP(App)
