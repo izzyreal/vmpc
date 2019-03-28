@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <cairo.h>
+
 #include <SDL.h>        
 #include <SDL_image.h>
 #include <SDL_render.h>
@@ -6,139 +9,77 @@
 
 #include "file/FileUtil.hpp"
 
-#include "nanosvg.h"
-#include "nanosvgrast.h"
-
 using namespace moduru;
 
-NSVGimage* nsvgParseFromFile1(const char* filename, const char* units, float dpi)
-{
-	FILE* fp = NULL;
-	size_t size;
-	char* data = NULL;
-	NSVGimage* image = NULL;
 
-	fp = fopen(filename, "rb");
-	if (!fp) goto error;
-	fseek(fp, 0, SEEK_END);
-	size = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	data = (char*)malloc(size + 1);
-	if (data == NULL) goto error;
-	if (fread(data, 1, size, fp) != size) goto error;
-	data[size] = '\0';	// Must be null terminated.
-	fclose(fp);
-	image = nsvgParse(data, units, dpi);
-	free(data);
+#include "c:/svg2cairo/mpc.c"
 
-	return image;
+int main(int argc, char *argv[]) {
 
-error:
-	if (fp) fclose(fp);
-	if (data) free(data);
-	if (image) nsvgDelete(image);
-	return NULL;
-}
-
-int main(int argc, char ** argv)
-{
 	const auto sep = file::FileUtil::getSeparator();
 	const auto resPath = mpc::StartUp::resPath;
 	const auto imgPath = resPath + sep + "img" + sep;
 	const auto bgPath = imgPath + "mpc-px.svg";
 
+	int mpc_width = cairo_code_mpc_get_width();
+	int mpc_height = cairo_code_mpc_get_height();
 
-	NSVGimage* mpcSvg = NULL;
-	NSVGrasterizer *rast = NULL;
-	unsigned char* img = NULL;
-	int w, h;
+	int width = mpc_width * 2;
+	int height = mpc_width * 2;
 
-	printf("parsing %s\n", bgPath.c_str());
-	mpcSvg = nsvgParseFromFile1(bgPath.c_str(), "px", 96);
-	if (mpcSvg == NULL) {
-		printf("Could not open SVG image.\n");
-		return 0;
-	}
-	w = (int)mpcSvg->width;
-	h = (int)mpcSvg->height;
-	NSVGshape* shape;
-	NSVGpath* path;
+	SDL_Surface *sdlsurf = SDL_CreateRGBSurface(
+		0, width, height, 32,
+		0x00FF0000, /* Rmask */
+		0x0000FF00, /* Gmask */
+		0x000000FF, /* Bmask */
+		0); /* Amask */
 
-	for (shape = mpcSvg->shapes; shape != NULL; shape = shape->next) {	
-		//shape->opacity = 0.5f;
-		for (path = shape->paths; path != NULL; path = path->next) {
-			// do something with paths if necessary
-			for (int p = 0; p < path->npts; p++) {
-				path->pts[p];
-			}
-		}
-	}
+	cairo_surface_t *surface = cairo_image_surface_create_for_data(
+		(unsigned char*) sdlsurf->pixels,
+		CAIRO_FORMAT_RGB24,
+		sdlsurf->w,
+		sdlsurf->h,
+		sdlsurf->pitch);
 
-	rast = nsvgCreateRasterizer();
-	if (rast == NULL) {
-		printf("Could not init rasterizer.\n");
-		return 0;
-	}
-
-	img = (unsigned char*) malloc(w*h * 4);
-	if (img == NULL) {
-		printf("Could not alloc image buffer.\n");
-		return 0;
-	}
-
-	printf("rasterizing image %d x %d\n", w, h);
-	nsvgRasterize(rast, mpcSvg, 0, 0, 1, img, w, h, w * 4);
+	cairo_t *cr = cairo_create(surface);
+	cairo_scale(cr, 2, 2);
 
 	bool quit = false;
 	SDL_Event event;
 
 	SDL_Init(SDL_INIT_VIDEO);
 
-	const int width = 940;
-	const int height = 686;
-
 	SDL_Window * window = SDL_CreateWindow("vMPC2000XL",
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
 
 	SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
-	Uint32 rmask, gmask, bmask, amask;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	int shift = (req_format == STBI_rgb) ? 8 : 0;
-	rmask = 0xff000000 >> shift;
-	gmask = 0x00ff0000 >> shift;
-	bmask = 0x0000ff00 >> shift;
-	amask = 0x000000ff >> shift;
-#else // little endian, like x86
-	rmask = 0x000000ff;
-	gmask = 0x0000ff00;
-	bmask = 0x00ff0000;
-	amask = 0xff000000; // should maybe be 0, see https://wiki.libsdl.org/SDL_CreateRGBSurfaceFrom#Remarks
-#endif
-
 	SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
-	SDL_Surface* imgSurface = SDL_CreateRGBSurfaceFrom(img, width, height, 32, 4 * width, rmask, gmask, bmask, amask);
-	SDL_Surface * image = IMG_Load(bgPath.c_str());
-	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, imgSurface);
+	double angle = 0.01;
 	
 	while (!quit)
 	{
-		SDL_WaitEvent(&event);
-
+		SDL_WaitEventTimeout(&event, 1);
 		switch (event.type)
 		{
 		case SDL_QUIT:
 			quit = true;
 			break;
 		}
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		SDL_RenderClear(renderer);
+		cairo_set_source_rgb(cr, 255, 255, 255);
+		cairo_paint(cr);
+		cairo_translate(cr, mpc_width / 2, mpc_height / 2);
+		cairo_rotate(cr, angle);
+		cairo_translate(cr, -mpc_width / 2, -mpc_height / 2);
+		cairo_code_mpc_render(cr);
+		
+		SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, sdlsurf);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 		SDL_RenderPresent(renderer);
+		SDL_DestroyTexture(texture);
 	}
-	
-	SDL_DestroyTexture(texture);
-	SDL_FreeSurface(image);
+
+	SDL_FreeSurface(sdlsurf);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

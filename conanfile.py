@@ -7,7 +7,7 @@ class Pkg(ConanFile):
     settings = "os", "compiler", "arch", "build_type"
     generators = "cmake"
     exports_sources = "src/*"
-    requires = ("sdl2/2.0.9@bincrafters/stable", "sdl2_image/2.0.4@bincrafters/stable", "nanosvg/0.0.0@izmar/testing", "mpc/0.1@izmar/testing", "ctoot/0.1@izmar/testing", "moduru/0.1@izmar/testing", "rapidjson/1.1.0@bincrafters/stable", "Catch2/2.7.0@catchorg/stable")
+    requires = ("cairo/1.15.14@bincrafters/stable", "sdl2/2.0.9@bincrafters/stable", "sdl2_image/2.0.4@bincrafters/stable", "mpc/0.1@izmar/testing", "ctoot/0.1@izmar/testing", "moduru/0.1@izmar/testing", "rapidjson/1.1.0@bincrafters/stable", "Catch2/2.7.0@catchorg/stable")
 
     def build(self):
         cmake = CMake(self)
