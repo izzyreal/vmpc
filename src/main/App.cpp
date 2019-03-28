@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <cairo.h>
+#include <gl/GL.h>
+
+
 
 #include <SDL.h>        
 #include <SDL_image.h>
