@@ -1,7 +1,5 @@
 #include <stdlib.h>
 #include <cairo.h>
-#include <gl/GL.h>
-
 
 
 #include <SDL.h>        
@@ -15,7 +13,7 @@
 using namespace moduru;
 
 
-#include "c:/svg2cairo/mpc.c"
+#include "mpc.c"
 
 int main(int argc, char *argv[]) {
 
@@ -45,7 +43,7 @@ int main(int argc, char *argv[]) {
 		sdlsurf->pitch);
 
 	cairo_t *cr = cairo_create(surface);
-	cairo_scale(cr, 2, 2);
+	cairo_scale(cr, 5, 5);
 
 	bool quit = false;
 	SDL_Event event;
@@ -55,11 +53,11 @@ int main(int argc, char *argv[]) {
 	SDL_Window * window = SDL_CreateWindow("vMPC2000XL",
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, 0);
 
-	SDL_GLContext glContext = SDL_GL_CreateContext(window);
-
 	SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
 	double angle = 0.01;
-	
+    SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, sdlsurf);
+    
+    cairo_translate(cr, -mpc_width / 2, -mpc_height / 2);
 	while (!quit)
 	{
 		SDL_WaitEventTimeout(&event, 1);
@@ -71,17 +69,16 @@ int main(int argc, char *argv[]) {
 		}
 		cairo_set_source_rgb(cr, 255, 255, 255);
 		cairo_paint(cr);
-		cairo_translate(cr, mpc_width / 2, mpc_height / 2);
-		cairo_rotate(cr, angle);
-		cairo_translate(cr, -mpc_width / 2, -mpc_height / 2);
+		//cairo_rotate(cr, angle);
+		//cairo_translate(cr, -mpc_width / 2, -mpc_height / 2);
 		cairo_code_mpc_render(cr);
-		
-		SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, sdlsurf);
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_Rect r{0, 0, 500, 500};
+        SDL_UpdateTexture(texture, &r, (unsigned char*) sdlsurf->pixels, sdlsurf->pitch);
+		SDL_RenderCopy(renderer, texture, &r, &r);
 		SDL_RenderPresent(renderer);
-		SDL_DestroyTexture(texture);
 	}
 
+    SDL_DestroyTexture(texture);
 	SDL_FreeSurface(sdlsurf);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
