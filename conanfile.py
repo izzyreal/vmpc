@@ -8,7 +8,8 @@ class Pkg(ConanFile):
     generators = "cmake"
     exports_sources = "src/*"
     requires = ("cairo/1.15.14@bincrafters/stable", "sdl2/2.0.9@bincrafters/stable", "sdl2_image/2.0.4@bincrafters/stable", "mpc/0.1@izmar/dev", "ctoot/0.1@izmar/dev", "moduru/0.1@izmar/dev", "rapidjson/1.1.0@bincrafters/stable", "Catch2/2.7.0@catchorg/stable")
-
+    url = "https://github.com/izzyreal/vmpc.git"
+	
     def build(self):
         cmake = CMake(self)
         cmake.configure(source_folder="src")

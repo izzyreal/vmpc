@@ -13,7 +13,7 @@
 using namespace moduru;
 
 
-#include "mpc.c"
+#include "mpc.h"
 
 int main(int argc, char *argv[]) {
 
