@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
     SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, sdlsurf);
     
     //cairo_translate(cr, -mpc_width / 2, -mpc_height / 2);
+	cairo_scale(cr, 1.75, 1.75);
 	while (!quit)
 	{
 		SDL_WaitEventTimeout(&event, 1);
@@ -68,12 +69,12 @@ int main(int argc, char *argv[]) {
 		}
 		cairo_set_source_rgb(cr, 255, 255, 255);
 		cairo_paint(cr);
-		cairo_translate(cr, mpc_width / 2, mpc_height / 2);
-		cairo_rotate(cr, angle);
-		cairo_translate(cr, -mpc_width / 2, -mpc_height / 2);
-		cairo_scale(cr, 2, 2);
+		//cairo_translate(cr, mpc_width / 2, mpc_height / 2);
+		//cairo_rotate(cr, angle);
+		//cairo_translate(cr, -mpc_width / 2, -mpc_height / 2);
+		//cairo_scale(cr, 1.75, 1.75);
 		cairo_code_mpc_render(cr);
-		cairo_scale(cr, 0.5, 0.5);
+		//cairo_scale(cr, 0.5, 0.5);
 		//SDL_Rect r{0, 0, 500, 500};
         //SDL_UpdateTexture(texture, &r, (unsigned char*) sdlsurf->pixels, sdlsurf->pitch);
 		//SDL_RenderCopy(renderer, texture, &r, &r);
