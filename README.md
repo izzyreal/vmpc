@@ -26,7 +26,7 @@ Moduru is a messy collection of utilities I made, combined some easy to include 
 
 #### ctoot
 
-CToot is an attempt to bring Steve Taylor's [toot2](https://github.com/toot/toot2) from Java to C++. In many areas only the bare minimum is implemented, so don't expect a full translation. Much of the basics of the digital audio and music problem domain is covered however:
+ctoot is an attempt to bring Steve Taylor's [toot2](https://github.com/toot/toot2) from Java to C++. In many areas only the bare minimum is implemented, so don't expect a full translation. Much of the basics of the digital audio and music problem domain is covered however:
 
 * audio servers
 * audio system with mixer (optionally auto-connecting)
@@ -38,13 +38,13 @@ CToot is an attempt to bring Steve Taylor's [toot2](https://github.com/toot/toot
 
 #### mpc
 
-Mpc compiles to a static library that covers most of the [Akai MPC](https://en.wikipedia.org/wiki/Akai_MPC) problem domain. The MPC's core functionalities are:
+`mpc` compiles to a static library that covers most of the [Akai MPC](https://en.wikipedia.org/wiki/Akai_MPC) problem domain. The MPC's core functionalities are:
 
 * sequencing, musical arrangement
 * sample record and playback
 
-The library is agnostic to GUI implementation.
+The library is agnostic to GUI implementation, exposing the contents of its virtual monochrome LCD screen via a 2-dimensional vector of booleans.
 
 #### vmpc
 
-Vmpc is a runnable wxWidgets GUI implementation of mpc.
+`vmpc` is a runnable GUI implementation of `mpc`. Currently I'm experimenting with a vector graphics UI powered by [cairo](https://www.cairographics.org/) and [sdl](https://www.libsdl.org/).
