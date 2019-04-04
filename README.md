@@ -1,5 +1,5 @@
 # vMPC2000XL
-wxWidgets implementation of the Akai MPC2000XL emulator.
+Cross-platform Akai MPC2000XL emulator.
 
 # Development Setup (Visual Studio for Windows x64)
 Requirements:
