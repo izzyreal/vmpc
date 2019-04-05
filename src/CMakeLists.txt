@@ -13,7 +13,7 @@ conan_basic_setup(NO_OUTPUT_DIRS)
 
 ## Configure main lib ##
 
-set(_src_root_path_main "${CMAKE_CURRENT_SOURCE_DIR}/main")
+set(_src_root_path_main "${CMAKE_CURRENT_SOURCE_DIR}/main/cpp")
 
 include_directories(${_src_root_path_main})
 
@@ -21,7 +21,7 @@ file(
     GLOB_RECURSE _source_list_main 
     LIST_DIRECTORIES false
     RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${_src_root_path_main}/*.c*"
+    "${_src_root_path_main}/.c*"
     "${_src_root_path_main}/*.cpp*"
     "${_src_root_path_main}/*.hpp*"
 	"${_src_root_path_main}/*.hxx*"

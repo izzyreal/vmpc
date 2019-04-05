@@ -16,7 +16,7 @@ class Pkg(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy("*.h", src="src/main", dst="include")
-        self.copy("*.hpp", src="src/main", dst="include")
+        self.copy("*.h", src="src/main/cpp", dst="include")
+        self.copy("*.hpp", src="src/main/cpp", dst="include")
         self.copy("*.lib", dst="lib", keep_path=False)
         self.copy("*.a", dst="lib", keep_path=False)
