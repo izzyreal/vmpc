@@ -1,8 +1,8 @@
 int cairo_code_mpc_get_width() { return 940; }
 int cairo_code_mpc_get_height() { return 686; }
 void cairo_code_mpc_render(cairo_t *cr) {
-cairo_surface_t *temp_surface;
-cairo_t *old_cr;
+//cairo_surface_t *temp_surface;
+//cairo_t *old_cr;
 cairo_pattern_t *pattern;
 cairo_matrix_t matrix;
 

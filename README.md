@@ -18,3 +18,5 @@ At the moment it is powered by
 * [SDL](https://www.libsdl.org/)
 
 but that could change, as I'm currently in the middle of developing `vmpc`.
+
+<explain Conan add remote and install>
