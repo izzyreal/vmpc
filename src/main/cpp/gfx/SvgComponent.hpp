@@ -1,12 +1,16 @@
 #pragma once
 
 #include "Component.hpp"
+#include <functional>
 
 class SvgComponent :
 	public Component
 {
+private:
+    std::function<void(cairo_t*)> svgRenderFunc;
+
 public:
-	SvgComponent();
+	SvgComponent(const std::function<void(cairo_t*)>& svgRenderFunc);
 	~SvgComponent();
 
 public:

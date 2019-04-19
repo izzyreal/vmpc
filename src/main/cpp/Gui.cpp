@@ -1,10 +1,12 @@
 #include "Gui.hpp"
 
-/* ctor dtor */
+#include "mpc.h"
+
+/* ctor & dtor */
 
 Gui::Gui()
 {
-    components.push_back(make_shared<SvgComponent>());
+    components.push_back(make_shared<SvgComponent>(cairo_code_mpc_render));
     initBackground();
 }
 
@@ -12,7 +14,7 @@ Gui::~Gui()
 {
 }
 
-/* ctor dtor */
+/* end of ctor & dtor */
 
 
 void Gui::refreshDesktopSize() {
