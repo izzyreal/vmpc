@@ -38,7 +38,7 @@ private:
     float bgRatio;
     
 private:
-    float userSize = MEDIUM;
+    float userScale = MEDIUM;
     bool quit = false;
 	int drawableWidth, drawableHeight;
     int desktopWidth, desktopHeight;
@@ -49,15 +49,25 @@ private:
 private:
 	void draw();
 
-public:
-	void initSDL();
+private:
     void initWindow();
     void initBackground();
-    void initCairo();
-	void destroySDL();
     void refreshDesktopSize();
     void refreshDrawableSize();
     void setWindowSize();
     void setWindowPosition();
+
+public:
+	void initSDL();
+    void initCairo();
+    void startLoop();
+	void destroySDL();
+
+private:
+    void setUserScale(const float& scale);
+    
+private:
+    void handleKeyDown(const SDL_KeyboardEvent& event);
+    
 };
 

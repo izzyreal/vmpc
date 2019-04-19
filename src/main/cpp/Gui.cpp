@@ -6,7 +6,6 @@ Gui::Gui()
     initBackground();
 }
 
-
 Gui::~Gui()
 {
 }
@@ -39,15 +38,17 @@ void Gui::initSDL() {
     
     sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0);
     sdlTexture = SDL_CreateTextureFromSurface(sdlRenderer, sdlSurface);
-    
+}
 
-    initCairo();
-    
+void Gui::startLoop() {
     while (!quit)
     {
-        SDL_WaitEventTimeout(&event, 1);
+        SDL_WaitEvent(&event);
         switch (event.type)
         {
+            case SDL_KEYDOWN:
+                handleKeyDown(event.key);
+                break;
             case SDL_QUIT:
                 quit = true;
                 break;
@@ -104,4 +105,22 @@ void Gui::destroySDL() {
     SDL_DestroyRenderer(sdlRenderer);
     SDL_DestroyWindow(sdlWindow);
     SDL_Quit();
+}
+
+void Gui::setUserScale(const float& scale) {
+    SDL_SetWindowSize(sdlWindow, initialWindowWidth * scale, initialWindowHeight * scale);
+}
+
+void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
+    switch(event.keysym.sym ){
+        case SDLK_LEFT:
+            setUserScale(SMALL);
+            break;
+        case SDLK_UP:
+            setUserScale(MEDIUM);
+            break;
+        case SDLK_RIGHT:
+            setUserScale(LARGE);
+            break;
+    }
 }

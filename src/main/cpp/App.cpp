@@ -19,6 +19,8 @@ int main(int argc, char *argv[]) {
 
 	Gui gui;
 	gui.initSDL();
+    gui.initCairo();
+    gui.startLoop();
 	gui.destroySDL();
 	return 0;
 }
