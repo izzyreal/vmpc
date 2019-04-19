@@ -84,8 +84,8 @@ void Gui::draw(bool dirtyOnly) {
     SDL_RenderPresent(sdlRenderer);
 }
 
-void Gui::setUserScale(const float& scale) {
-    this->userScale = scale;
+void Gui::setUserScale(const float& userScale) {
+    this->userScale = userScale;
     setWindowSize();
     setWindowPosition();
     refreshDrawableSize();

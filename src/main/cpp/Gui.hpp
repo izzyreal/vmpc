@@ -75,10 +75,10 @@ public:
 	void destroySDL();
 
 public:
-    void setUserScale(const float& scale);
+    void setUserScale(const float&);
     
 private:
-    void handleKeyDown(const SDL_KeyboardEvent& event);
+    void handleKeyDown(const SDL_KeyboardEvent&);
     
 };
 
