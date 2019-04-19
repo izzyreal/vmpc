@@ -148,8 +148,6 @@ void Gui::initSDL() {
     
     initWindow();
     sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0);
-    initSDLSurface();
-    initSDLTexture();
 }
 
 void Gui::initBackground() {
@@ -160,9 +158,6 @@ void Gui::initWindow() {
     initialWindowWidth = BG_WIDTH;
     initialWindowHeight = initialWindowWidth * bgRatio;
     sdlWindow = SDL_CreateWindow("vMPC2000XL", 0, 0, 0, 0, SDL_WINDOW_ALLOW_HIGHDPI);
-    setWindowSize();
-    setWindowPosition();
-    refreshDrawableSize();
 }
 
 void Gui::destroySDL() {

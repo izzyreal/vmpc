@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
 	Gui gui;
 	gui.initSDL();
-    gui.initCairo();
+    gui.setUserScale(1.0f);
     gui.startLoop();
 	gui.destroySDL();
 	return 0;

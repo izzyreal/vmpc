@@ -74,7 +74,7 @@ public:
     void startLoop();
 	void destroySDL();
 
-private:
+public:
     void setUserScale(const float& scale);
     
 private:
