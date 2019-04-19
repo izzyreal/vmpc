@@ -19,18 +19,18 @@ public:
 	~Gui();
 
 private:
-    SDL_Surface* sdlSurface;
     SDL_Renderer* sdlRenderer;
-    SDL_Texture* sdlTexture;
     SDL_Window* sdlWindow;
+    SDL_Surface* sdlSurface = nullptr;
+    SDL_Texture* sdlTexture = nullptr;
     SDL_Event event;
 
 private:
-    cairo_surface_t* cairoSurface;
-    cairo_t* cairoContext;
+    cairo_surface_t* cairoSurface = nullptr;
+    cairo_t* cairoContext = nullptr;
 
 private:
-    const float SMALL = 0.75f, MEDIUM = 1.0f, LARGE = 1.25f;
+    const float SMALL = 0.75f, MEDIUM = 1.0f, LARGE = 1.5f;
     const float BG_WIDTH = 940.f;
     const float BG_HEIGHT = 686.f;
     
@@ -50,13 +50,24 @@ private:
 	void draw();
 
 private:
+    void initSDLSurface();
+    void initSDLTexture();
+    void initCairoSurface();
+    void initCairoContext();
+    void scaleCairoContext();
     void initWindow();
     void initBackground();
     void refreshDesktopSize();
     void refreshDrawableSize();
     void setWindowSize();
     void setWindowPosition();
-
+    
+private:
+    void destroyCairoContext();
+    void destroySDLSurface();
+    void destroySDLTexture();
+    void destroyCairoSurface();
+    
 public:
 	void initSDL();
     void initCairo();
