@@ -30,10 +30,20 @@ private:
     cairo_t* cairoContext;
 
 private:
+    const float SMALL = 0.75f, MEDIUM = 1.0f, LARGE = 1.25f;
+    const float BG_WIDTH = 940.f;
+    const float BG_HEIGHT = 686.f;
+    
+private:
+    float bgRatio;
+    
+private:
+    float userSize = MEDIUM;
     bool quit = false;
 	int drawableWidth, drawableHeight;
     int desktopWidth, desktopHeight;
-//    float scale = 0.5f;
+    int initialWindowWidth, initialWindowHeight;
+    float cairoScale;
     vector<shared_ptr<Component>> components;
 
 private:
@@ -41,8 +51,13 @@ private:
 
 public:
 	void initSDL();
+    void initWindow();
+    void initBackground();
+    void initCairo();
 	void destroySDL();
-    void refreshDesktopDimensions();
-	void rotate();
+    void refreshDesktopSize();
+    void refreshDrawableSize();
+    void setWindowSize();
+    void setWindowPosition();
 };
 
