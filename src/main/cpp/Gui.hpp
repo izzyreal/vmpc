@@ -47,7 +47,7 @@ private:
     vector<shared_ptr<Component>> components;
 
 private:
-	void draw();
+	void draw(bool dirtyOnly);
 
 private:
     void initSDLSurface();

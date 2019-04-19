@@ -18,11 +18,14 @@ public:
 
 public:
 	virtual void rotate(const float& angle) {}
+    
+public:
+    bool isDirty() { return dirty; }
 };
 
 class Group : Component{
 private:
 	vector<std::weak_ptr<Component>> group;
 public:
-	void draw(cairo_t* context) override { for (auto& el : group) el.lock()->draw(context); }
+    void draw(cairo_t* context) override { for (auto& el : group) el.lock()->draw(context); dirty = false; }
 };

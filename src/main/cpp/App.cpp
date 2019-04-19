@@ -16,7 +16,6 @@
 using namespace moduru;
 
 int main(int argc, char *argv[]) {
-
 	Gui gui;
 	gui.initSDL();
     gui.setUserScale(1.0f);

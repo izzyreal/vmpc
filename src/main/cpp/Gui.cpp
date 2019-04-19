@@ -73,9 +73,10 @@ void Gui::scaleCairoContext() {
     cairo_scale(cairoContext, cairoScale, cairoScale);
 }
 
-void Gui::draw() {
+void Gui::draw(bool dirtyOnly) {
     for (auto c : components) {
-        c->draw(cairoContext);
+        if (!dirtyOnly || c->isDirty())
+            c->draw(cairoContext);
     }
     
     SDL_UpdateTexture(sdlTexture, NULL, (unsigned char*)sdlSurface->pixels, sdlSurface->pitch);
@@ -91,7 +92,7 @@ void Gui::setUserScale(const float& scale) {
     initSDLSurface();
     initSDLTexture();
     initCairo();
-    draw();
+    draw(false);
 }
 
 
