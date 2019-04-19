@@ -19,16 +19,22 @@ public:
 	~Gui();
 
 private:
-	bool quit = false;
-	SDL_Event event;
+    SDL_Surface* sdlSurface;
+    SDL_Renderer* sdlRenderer;
+    SDL_Texture* sdlTexture;
+    SDL_Window* sdlWindow;
+    SDL_Event event;
+
+private:
+    cairo_surface_t* cairoSurface;
+    cairo_t* cairoContext;
+
+private:
+    bool quit = false;
 	int drawableWidth, drawableHeight;
-	SDL_Surface* sdlSurface;
-	cairo_surface_t* cairoSurface;
-	SDL_Renderer* sdlRenderer;
-	SDL_Texture* sdlTexture;
-	SDL_Window* sdlWindow;
-	vector<shared_ptr<Component>> components;
-	cairo_t* cairoContext;
+    int desktopWidth, desktopHeight;
+//    float scale = 0.5f;
+    vector<shared_ptr<Component>> components;
 
 private:
 	void draw();
@@ -36,6 +42,7 @@ private:
 public:
 	void initSDL();
 	void destroySDL();
+    void refreshDesktopDimensions();
 	void rotate();
 };
 

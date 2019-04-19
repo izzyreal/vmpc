@@ -1,3 +1,6 @@
+#ifndef mpc_svg_h
+#define mpc_svg_h
+
 int cairo_code_mpc_get_width() { return 940; }
 int cairo_code_mpc_get_height() { return 686; }
 void cairo_code_mpc_render(cairo_t *cr) {
@@ -20885,3 +20888,5 @@ cairo_pattern_set_matrix(pattern, &matrix);
 cairo_stroke_preserve(cr);
 /********************/
 }
+
+#endif // mpc_svg_h
