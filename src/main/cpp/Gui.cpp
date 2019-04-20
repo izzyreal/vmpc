@@ -1,12 +1,14 @@
 #include "Gui.hpp"
 
-#include "mpc.h"
+#include "mpc2.h"
+#include "pad.h"
 
 /* ctor & dtor */
 
 Gui::Gui()
 {
-    components.push_back(make_shared<SvgComponent>(cairo_code_mpc_render));
+    components.push_back(make_shared<SvgComponent>(cairo_code_mpc2_render));
+    components.push_back(make_shared<SvgComponent>(cairo_code_pad_render));
     initBackground();
 }
 

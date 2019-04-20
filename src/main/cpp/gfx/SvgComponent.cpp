@@ -11,8 +11,8 @@ SvgComponent::~SvgComponent()
 }
 
 void SvgComponent::draw(cairo_t* context) {
-	cairo_set_source_rgb(context, 255, 255, 255);
-	cairo_paint(context);
+//	cairo_set_source_rgb(context, 255, 255, 255);
+//	cairo_paint(context);
     svgRenderFunc(context);
     dirty = false;
 }
