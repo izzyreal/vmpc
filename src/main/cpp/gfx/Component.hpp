@@ -14,6 +14,9 @@ protected:
 	bool dirty = true;
 
 public:
+	Component(const MRECT&);
+
+public:
 	virtual void draw(cairo_t* context) = 0;
 
 public:
@@ -24,6 +27,8 @@ public:
 };
 
 class Group : Component{
+public:
+	Group(const MRECT& rect) : Component(rect) {}
 private:
 	vector<std::weak_ptr<Component>> group;
 public:

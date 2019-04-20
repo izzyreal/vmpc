@@ -10,7 +10,7 @@ private:
     std::function<void(cairo_t*)> svgRenderFunc;
 
 public:
-	SvgComponent(const std::function<void(cairo_t*)>& svgRenderFunc);
+	SvgComponent(const MRECT&, const std::function<void(cairo_t*)>& svgRenderFunc);
 	~SvgComponent();
 
 public:
