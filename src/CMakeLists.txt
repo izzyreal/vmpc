@@ -36,6 +36,21 @@ endforeach()
 add_executable(vmpc ${_source_list_main})
 conan_target_link_libraries(vmpc)
 
+message("runtime output dir:")
+message("${CMAKE_CFG_INTDIR}")
+
+if(MSVC)
+    SET(CMAKE_SHARED_LINKER_FLAGS /MANIFEST:NO)
+	add_custom_command(TARGET
+                     vmpc
+                   POST_BUILD
+                   COMMAND
+                     "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}/main/resources/dpiaware.manifest" -outputresource:\"${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/vmpc.exe"\;\#1
+                   COMMENT
+                     "Adding custom manifest for dpi awareness..." 
+                  )
+endif(MSVC)
+
 ## Configure test suite application ##
 
 set(_src_root_path_test "${CMAKE_CURRENT_SOURCE_DIR}/test")
