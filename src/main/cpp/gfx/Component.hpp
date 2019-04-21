@@ -10,11 +10,13 @@ using namespace std;
 
 class Component {
 protected:
+	//cairo_rectangle_t cr;
 	MRECT r;
 	bool dirty = true;
 
 public:
 	Component(const MRECT&);
+	//Component(const cairo_rectangle_t&);
 
 public:
 	virtual void draw(cairo_t* context) = 0;

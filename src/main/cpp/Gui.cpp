@@ -7,8 +7,10 @@
 
 Gui::Gui()
 {
-    components.push_back(make_shared<SvgComponent>(MRECT(0,0,400,400), cairo_code_mpc2_render));
-    components.push_back(make_shared<SvgComponent>(MRECT(20,20,60,60), cairo_code_pad_render));
+    components.push_back(make_shared<SvgComponent>(MRECT(0,0,cairo_code_mpc2_get_width(),cairo_code_mpc2_get_height()), cairo_code_mpc2_render));
+	int x = 50;
+	int y = 150;
+	components.push_back(make_shared<SvgComponent>(MRECT(x,y,x+cairo_code_pad_get_width(),y+cairo_code_pad_get_height()), cairo_code_pad_render));
     initBackground();
 }
 

@@ -11,6 +11,7 @@ private:
 
 public:
 	SvgComponent(const MRECT&, const std::function<void(cairo_t*)>& svgRenderFunc);
+	//SvgComponent(const cairo_rectangle_t&, const std::function<void(cairo_t*)>& svgRenderFunc);
 	~SvgComponent();
 
 public:
