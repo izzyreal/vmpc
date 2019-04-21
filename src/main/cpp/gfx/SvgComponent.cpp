@@ -11,18 +11,11 @@ SvgComponent::~SvgComponent()
 }
 
 void SvgComponent::draw(cairo_t* context) {
-	auto l = static_cast<double>(r.L);
-	auto t = static_cast<double>(r.T);
-	
-	cairo_rectangle(context, l, t, static_cast<double>(r.W()), static_cast<double>(r.H()));
-	cairo_clip_preserve(context);
-	cairo_translate(context, l, t);
+	prepare(context, true);
 	svgRenderFunc(context);
-	cairo_translate(context, -l, -t);
-	cairo_reset_clip(context);
+	restore(context, true);
 	dirty = false;
 }
-
 
 void SvgComponent::rotate(const float& angle) {
 	dirty = true;

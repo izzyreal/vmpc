@@ -16,7 +16,10 @@ protected:
 
 public:
 	Component(const MRECT&);
-	//Component(const cairo_rectangle_t&);
+	
+protected:
+	void prepare(cairo_t* context, const bool& clip);
+	void restore(cairo_t* context, const bool& clip);
 
 public:
 	virtual void draw(cairo_t* context) = 0;
@@ -28,6 +31,7 @@ public:
     bool isDirty() { return dirty; }
 };
 
+/*
 class Group : Component{
 public:
 	Group(const MRECT& rect) : Component(rect) {}
@@ -36,3 +40,4 @@ private:
 public:
     void draw(cairo_t* context) override { for (auto& el : group) el.lock()->draw(context); dirty = false; }
 };
+*/

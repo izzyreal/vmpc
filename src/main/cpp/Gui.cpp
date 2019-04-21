@@ -8,10 +8,20 @@
 Gui::Gui()
 {
     components.push_back(make_shared<SvgComponent>(MRECT(0,0,cairo_code_mpc2_get_width(),cairo_code_mpc2_get_height()), cairo_code_mpc2_render));
-	int x = 50;
-	int y = 150;
-	components.push_back(make_shared<SvgComponent>(MRECT(x,y,x+cairo_code_pad_get_width(),y+cairo_code_pad_get_height()), cairo_code_pad_render));
-    initBackground();
+	auto group = make_shared<Group>(MRECT(0, 0, 0, 0));
+	const int padX = 548;
+	const int padY = 285;
+	const int padSpace = 10;
+	const int padWidth = cairo_code_pad_get_width();
+	for (int col = 0; col < 4; col++) {
+		for (int row = 0; row < 4; row++) {
+			int x = padX + ((padWidth + padSpace) * col);
+			int y = padY + ((padWidth + padSpace) * row);
+			group->addComp(make_shared<SvgComponent>(MRECT(x, y, x + cairo_code_pad_get_width(), y + cairo_code_pad_get_height()), cairo_code_pad_render));
+		}
+	}
+	components.push_back(group);
+	initBackground();
 }
 
 Gui::~Gui()
