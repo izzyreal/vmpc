@@ -1,6 +1,6 @@
 #include "SvgComponent.hpp"
 
-SvgComponent::SvgComponent(const MRECT& rect, const std::function<void(cairo_t*)>& svgRenderFunc) : Component(rect)
+SvgComponent::SvgComponent(const MRECT& rect, const string& name, const std::function<void(cairo_t*)>& svgRenderFunc) : Component(rect, name)
 {
     this->svgRenderFunc = svgRenderFunc;
 }

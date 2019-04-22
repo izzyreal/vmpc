@@ -7,17 +7,27 @@
 
 Gui::Gui()
 {
-    components.push_back(make_shared<SvgComponent>(MRECT(0,0,cairo_code_mpc2_get_width(),cairo_code_mpc2_get_height()), cairo_code_mpc2_render));
-	auto group = make_shared<Group>(MRECT(0, 0, 0, 0));
+    components.push_back(make_shared<SvgComponent>(MRECT(0,0,cairo_code_mpc2_get_width(),cairo_code_mpc2_get_height()), "bg", cairo_code_mpc2_render));
+	auto group = make_shared<Group>(MRECT(0, 0, 0, 0), "pads");
+	
 	const int padX = 548;
 	const int padY = 285;
 	const int padSpace = 10;
 	const int padWidth = cairo_code_pad_get_width();
+	
+	vector<string> row1{ "13", "9", "5,", "1" };
+	vector<string> row2{ "14", "10", "6,", "2" };
+	vector<string> row3{ "15", "11", "7,", "3" };
+	vector<string> row4{ "16", "12", "8,", "4" };
+	vector<vector<string>> rows{ row1, row2, row3, row4 };
+
 	for (int col = 0; col < 4; col++) {
 		for (int row = 0; row < 4; row++) {
 			int x = padX + ((padWidth + padSpace) * col);
 			int y = padY + ((padWidth + padSpace) * row);
-			group->addComp(make_shared<SvgComponent>(MRECT(x, y, x + cairo_code_pad_get_width(), y + cairo_code_pad_get_height()), cairo_code_pad_render));
+			auto comp = make_shared<SvgComponent>(MRECT(x, y, x + padWidth, y + padWidth), "pad" + rows[col][row], cairo_code_pad_render);
+			printf("comp name: %s\n", comp->getName().c_str());
+			group->addComp(comp);
 		}
 	}
 	components.push_back(group);
@@ -130,6 +140,33 @@ void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
 
 /* end of keyboard handler */
 
+/* mouse handler */
+
+weak_ptr<Component> Gui::findUpperContains(const vector<weak_ptr<Component>>& comps, const int x, const int y) {
+	for (int i = comps.size() - 1; i >= 0; i--) {
+		auto c = comps[i].lock();
+		printf("Checking component: %s\n", c->getName().c_str());
+		if (c->getChildren().size() > 0) {
+			auto candidate = findUpperContains(c->getChildren(), x, y).lock();
+			if (candidate) return candidate;
+		}
+		else {
+			if (c->contains(x, y)) return c;
+		}
+	}
+	return {};
+}
+
+void Gui::handleMouseDown(const SDL_MouseButtonEvent& event) {
+	auto x = event.x / cairoScale;
+	auto y = event.y / cairoScale;
+	printf("%f, %f\n", x, y);
+	auto c = findUpperContains(vector<weak_ptr<Component>>(components.begin(), components.end()), x, y).lock();
+	if (c)
+		printf("Mouse down: %s\n", c->getName().c_str());
+}
+
+/* end of mouse handler */
 
 /* re-usable destruction methods */
 
@@ -191,6 +228,9 @@ void Gui::startLoop() {
         SDL_WaitEvent(&event);
         switch (event.type)
         {
+			case SDL_MOUSEBUTTONDOWN:
+				handleMouseDown(event.button);
+				break;
             case SDL_KEYDOWN:
                 handleKeyDown(event.key);
                 break;

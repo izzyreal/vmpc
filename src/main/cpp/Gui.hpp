@@ -80,6 +80,8 @@ public:
     
 private:
     void handleKeyDown(const SDL_KeyboardEvent&);
-    
+	void handleMouseDown(const SDL_MouseButtonEvent&);
+	weak_ptr<Component> findUpperContains(const vector<weak_ptr<Component>>& components, const int x, const int y);
+
 };
 

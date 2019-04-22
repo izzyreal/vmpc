@@ -1,7 +1,8 @@
 #include "Component.hpp"
 
-Component::Component(const MRECT& rect) {
+Component::Component(const MRECT& rect, const string& name) {
 	r = rect;
+	this->name = name;
 }
 
 void Component::prepare(cairo_t* context, const bool& clip) {
@@ -21,4 +22,8 @@ void Component::restore(cairo_t* context, const bool& clip) {
 	if (clip) {
 		cairo_reset_clip(context);
 	}
+}
+
+bool Component::contains(const int x, const int y) {
+	return r.Contains(x, y);
 }
