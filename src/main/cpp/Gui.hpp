@@ -13,11 +13,18 @@
 
 using namespace std;
 
+namespace mpc {
+	class Mpc;
+}
+
 class Gui
 {
 public:
-	Gui();
+	Gui(mpc::Mpc* mpc);
 	~Gui();
+
+private:
+	mpc::Mpc* mpc;
 
 private:
     SDL_Renderer* sdlRenderer;
