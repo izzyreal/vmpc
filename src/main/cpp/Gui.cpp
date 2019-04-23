@@ -144,6 +144,14 @@ void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
 			mpc->getHardware().lock()->getPad(0).lock()->push(127);
 			mpc->getHardware().lock()->getPad(0).lock()->release();
 			break;
+		case SDLK_x:
+			mpc->getHardware().lock()->getPad(1).lock()->push(127);
+			mpc->getHardware().lock()->getPad(1).lock()->release();
+			break;
+		case SDLK_c:
+			mpc->getHardware().lock()->getPad(2).lock()->push(127);
+			mpc->getHardware().lock()->getPad(2).lock()->release();
+			break;
     }
 }
 
