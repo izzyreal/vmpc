@@ -9,8 +9,6 @@
 #include <SDL_image.h>
 #include <SDL_render.h>
 
-//#include "portaudio.h"
-
 #include "StartUp.hpp"
 
 #include <file/FileUtil.hpp>
