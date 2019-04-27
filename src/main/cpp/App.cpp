@@ -33,6 +33,8 @@ using namespace mpc;
 
 static Mpc* mpcInstance = nullptr;
 
+static float* tootOut[2]{ new float[512 * 0.125], new float[512 * 0.125] };
+
 /*
 static int paTestCallback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo* timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
 {
@@ -69,15 +71,13 @@ rtaudio_callback(
 
 	auto as = mpcInstance->getAudioMidiServices().lock()->getRtAudioServer();
 	if (as == nullptr) return 0;
-	float left[(int) (512 * 0.125)];
-	float right[(int) (512 * 0.125)];
-	float* tootOut[2]{ left, right };
+
 	as->work(nullptr, tootOut, 512 * 0.125, 0, 2);
 
 	int counter = 0;
 	for (int i = 0; i < 512 * 0.125; i++) {
-		buf[counter++] = left[i];
-		buf[counter++] = right[i];
+		buf[counter++] = tootOut[0][i];
+		buf[counter++] = tootOut[1][i];
 	}
 	return 0;
 }
@@ -92,9 +92,16 @@ int main(int argc, char *argv[]) {
 	mpcInstance->getAudioMidiServices().lock()->getRtAudioServer()->resizeBuffers(512 * 0.125);
 
 	unsigned int bufsize = 512 * 0.125;
-	RtAudio* audio = new RtAudio(RtAudio::WINDOWS_WASAPI);
+	RtAudio* audio = new RtAudio(RtAudio::WINDOWS_ASIO);
 	unsigned int devId = audio->getDefaultOutputDevice();
-
+	for (int i = 0; i < audio->getDeviceCount(); i++) {
+		auto name = audio->getDeviceInfo(i).name;
+		printf("Name: %s\n", name.c_str());
+		if (name.find("Audio 4 DJ") != std::string::npos) {
+			devId = i;
+			break;
+		}
+	}
 	RtAudio::StreamParameters *outParam = new RtAudio::StreamParameters();
 
 	outParam->deviceId = devId;
