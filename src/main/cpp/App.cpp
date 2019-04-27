@@ -17,7 +17,7 @@
 
 #include <Mpc.hpp>
 #include <audiomidi/AudioMidiServices.hpp>
-#include <audio/server/RtAudioServer.hpp>
+#include <audio/server/ExternalAudioServer.hpp>
 #include <lcdgui/LayeredScreen.hpp>
 
 #include <math.h>
@@ -48,7 +48,7 @@ rtaudio_callback(
 	float	*buf = (float*)outbuf;
 	unsigned int remainFrames;
 
-	auto as = mpcInstance->getAudioMidiServices().lock()->getRtAudioServer();
+	auto as = mpcInstance->getAudioMidiServices().lock()->getExternalAudioServer();
 	if (as == nullptr) return 0;
 	unsigned int bufSize = (unsigned int) userdata;
 	//unsigned int bufSize = 4096;
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 	mpcInstance->init("rtaudio", ap.getSampleRate());
 	mpcInstance->getLayeredScreen().lock()->openScreen("sequencer");
 	mpcInstance->loadDemoBeat();
-	mpcInstance->getAudioMidiServices().lock()->getRtAudioServer()->resizeBuffers(ap.getBufferSize());
+	mpcInstance->getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(ap.getBufferSize());
 
 	unsigned int bufSize = ap.getBufferSize();
 
