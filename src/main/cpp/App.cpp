@@ -24,6 +24,8 @@
 
 #include <RtAudio.h>
 
+#include <audio/AudioPreferences.hpp>
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -33,29 +35,6 @@ using namespace mpc;
 
 static Mpc* mpcInstance = nullptr;
 
-static float* tootOut[2]{ new float[512 * 0.125], new float[512 * 0.125] };
-
-/*
-static int paTestCallback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo* timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
-{
-	auto as = mpcInstance->getAudioMidiServices().lock()->getRtAudioServer();
-	if (as == nullptr) return 0;
-	float left[512 * 0.125];
-	float right[512 * 0.125];
-	float* tootOut[2]{ left, right };
-	as->work(nullptr, tootOut, 512 * 0.125, 0, 2);
-
-	float *out = (float*)outputBuffer;
-	float* in = (float*)inputBuffer;
-
-	for (int i = 0; i < framesPerBuffer; i++)
-	{
-		*out++ = tootOut[0][i];
-		*out++ = tootOut[1][i];
-	}
-	return 0;
-}
-*/
 
 static int
 rtaudio_callback(
@@ -71,11 +50,13 @@ rtaudio_callback(
 
 	auto as = mpcInstance->getAudioMidiServices().lock()->getRtAudioServer();
 	if (as == nullptr) return 0;
-
-	as->work(nullptr, tootOut, 512 * 0.125, 0, 2);
+	unsigned int bufSize = (unsigned int) userdata;
+	//unsigned int bufSize = 4096;
+	static float* tootOut[2]{ new float[bufSize], new float[bufSize] };
+	as->work(nullptr, tootOut, bufSize, 0, 2);
 
 	int counter = 0;
-	for (int i = 0; i < 512 * 0.125; i++) {
+	for (int i = 0; i < bufSize; i++) {
 		buf[counter++] = tootOut[0][i];
 		buf[counter++] = tootOut[1][i];
 	}
@@ -84,57 +65,52 @@ rtaudio_callback(
 
 int main(int argc, char *argv[]) {
 
+	AudioPreferences ap = AudioPreferences();
+
+	map<DriverType, RtAudio::Api> apis = {
+		{ DriverType::ASIO, RtAudio::WINDOWS_ASIO },
+		{ DriverType::WASAPI, RtAudio::WINDOWS_WASAPI },
+		{ DriverType::DIRECTSOUND, RtAudio::WINDOWS_DS },
+		{ DriverType::CORE_AUDIO, RtAudio::MACOSX_CORE },
+		{ DriverType::PULSE_AUDIO, RtAudio::LINUX_PULSE }
+	};
+	
+	RtAudio* audio = new RtAudio(apis[ap.getDriverType()]);
+	const auto defaultInputDeviceId = audio->getDefaultInputDevice();
+	const auto defaultOutputDeviceId = audio->getDefaultOutputDevice();
+	const auto defaultInputDevice = audio->getDeviceInfo(defaultInputDeviceId).name;
+	const auto defaultOutputDevice = audio->getDeviceInfo(defaultOutputDeviceId).name;
 
 	mpcInstance = new Mpc();
-	mpcInstance->init("rtaudio", 44100);
+	mpcInstance->init("rtaudio", ap.getSampleRate());
 	mpcInstance->getLayeredScreen().lock()->openScreen("sequencer");
 	mpcInstance->loadDemoBeat();
-	mpcInstance->getAudioMidiServices().lock()->getRtAudioServer()->resizeBuffers(512 * 0.125);
+	mpcInstance->getAudioMidiServices().lock()->getRtAudioServer()->resizeBuffers(ap.getBufferSize());
 
-	unsigned int bufsize = 512 * 0.125;
-	RtAudio* audio = new RtAudio(RtAudio::WINDOWS_ASIO);
-	unsigned int devId = audio->getDefaultOutputDevice();
+	unsigned int bufSize = ap.getBufferSize();
+
+	auto devId = audio->getDefaultOutputDevice();
+
 	for (int i = 0; i < audio->getDeviceCount(); i++) {
-		auto name = audio->getDeviceInfo(i).name;
-		printf("Name: %s\n", name.c_str());
-		if (name.find("Audio 4 DJ") != std::string::npos) {
+		if (audio->getDeviceInfo(i).name.compare(ap.getOutputDevName()) == 0) {
 			devId = i;
 			break;
 		}
 	}
+
 	RtAudio::StreamParameters *outParam = new RtAudio::StreamParameters();
 
 	outParam->deviceId = devId;
 	outParam->nChannels = 2;
 
-	audio->openStream(outParam, NULL, RTAUDIO_FLOAT32, 44100,
-		&bufsize, rtaudio_callback, NULL);
+	const auto sampleRate = ap.getSampleRate();
+	
+	const auto audioFormat = RTAUDIO_FLOAT32;
+
+	audio->openStream(outParam, NULL, audioFormat, sampleRate, &bufSize, rtaudio_callback, (void*)bufSize);
 
 	audio->startStream();
-	/*
-	PaStreamParameters inputParameters, outputParameters;
-	PaStream *stream = NULL;
-	PaError err;
 
-	err = Pa_Initialize();
-	if (err != paNoError) printf("initialize error\n");
-
-	for (int i = 0; i < Pa_GetHostApiCount(); i++) {
-		auto name = Pa_GetHostApiInfo(i)->name;
-		printf("API name: %s\n", name);
-	}
-
-	outputParameters.hostApiSpecificStreamInfo = NULL;
-	outputParameters.channelCount = 2;
-	outputParameters.sampleFormat = paFloat32;
-	outputParameters.suggestedLatency = 0;
-	outputParameters.device = Pa_GetHostApiInfo(Pa_HostApiTypeIdToHostApiIndex(paWASAPI))->defaultOutputDevice;
-	err = Pa_OpenStream(&stream, nullptr, &outputParameters, 44100, 512 * 0.125, paNoFlag, paTestCallback, nullptr);
-	if (err != paNoError) printf("openstream error\n");
-
-	err = Pa_StartStream(stream);
-	if (err != paNoError) printf("startstream error\n");
-	*/
 	auto gui = Gui(mpcInstance);
 	gui.initSDL();
     gui.setUserScale(1.0f);

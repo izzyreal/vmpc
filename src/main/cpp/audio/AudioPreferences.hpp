@@ -7,7 +7,10 @@
 #ifndef AUDIOPREFERENCES
 #define AUDIOPREFERENCES
 
+#include <Serializable.hpp>
+
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -21,12 +24,22 @@ enum SampleFormat {
 	FLOAT32
 };
 
-class AudioPreferences {
+class AudioPreferences : public moduru::Serializable {
 
 public:
 	AudioPreferences(const string& inputDevName, const string& outputDevName);
 	AudioPreferences(const string& inputDevName, const string& outputDevName, const DriverType& driverType, const unsigned short& bufferSize);
 	AudioPreferences(const string& inputDevName, const string& outputDevName, const DriverType& driverType, const unsigned short& bufferSize, const SampleFormat& sampleFormat);
+	AudioPreferences(const string& settingsJson);
+	AudioPreferences();
+
+public:
+	const string serialize() override;
+
+private:
+	// Maps are used for (de)serialization
+	static map<DriverType, string> driverTypeNames;
+	static map<SampleFormat, string> sampleFormatNames;
 
 private:
 	DriverType driverType = getDefaultDriverType();
@@ -42,10 +55,19 @@ private:
 
 private:
 	SampleFormat sampleFormat = FLOAT32;
+	unsigned short sampleRate = 44100;
 
 private:
 	DriverType getDefaultDriverType();
 	const unsigned short getDefaultBufferSize();
+
+public:
+	const string& getInputDevName();
+	const string& getOutputDevName();
+
+	const unsigned short getBufferSize();
+	const unsigned short getSampleRate();
+	const DriverType& getDriverType();
 };
 
 #endif
