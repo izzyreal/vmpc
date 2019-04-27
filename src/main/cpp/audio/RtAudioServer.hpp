@@ -5,7 +5,7 @@
 class RtAudioServer
 {
 public:
-	RtAudioServer(const RtAudioCallback& callback, AudioPreferences& ap);
+	RtAudioServer(const RtAudioCallback& callback, const string& filePath);
 	~RtAudioServer();
 
 private:
@@ -13,10 +13,16 @@ private:
 	void safeDestroy();
 
 public:
-	void loadAudioPreferences(AudioPreferences& ap);
+	void start();
+	void storePreferences();
+	void loadPreferences();
+	int getBufferSize();
+	int getSampleRate();
 
 private:
 	RtAudioCallback callback;
 	RtAudio* audio = nullptr;
+	AudioPreferences ap;
+	string filePath = "";
 };
 

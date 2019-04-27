@@ -1,13 +1,41 @@
 #include "RtAudioServer.hpp"
 
-RtAudioServer::RtAudioServer(const RtAudioCallback& callback, AudioPreferences& ap)
+#include <file/File.hpp>
+
+#include <rapidjson/document.h>
+
+RtAudioServer::RtAudioServer(const RtAudioCallback& callback, const string& filePath)
 {
 	this->callback = callback;
-	loadAudioPreferences(ap);
+	this->ap = ap;
+	this->filePath = filePath;
+	loadPreferences();
+}
+
+void RtAudioServer::loadPreferences() {
+	try {
+		ap = AudioPreferences(filePath);
+	}
+	catch (const SerializationException& e) {
+		auto msg = e.what();
+		printf(msg);
+		ap = AudioPreferences();
+		return;
+	}
+}
+
+void RtAudioServer::storePreferences() {
+	moduru::file::File f(filePath, nullptr);
+	f.create();
+	f.openWrite();
+	for (auto c : ap.serialize())
+		f.writeByte(c);
+	f.close();
 }
 
 RtAudioServer::~RtAudioServer()
 {
+	storePreferences();
 	safeDestroy();
 }
 
@@ -23,7 +51,7 @@ void RtAudioServer::safeDestroy() {
 	}
 }
 
-void RtAudioServer::loadAudioPreferences(AudioPreferences& ap) {
+void RtAudioServer::start() {
 
 	safeDestroy();
 
@@ -66,4 +94,11 @@ void RtAudioServer::loadAudioPreferences(AudioPreferences& ap) {
 void RtAudioServer::stopAndCloseStream() {
 	audio->stopStream();
 	audio->closeStream();
+}
+
+int RtAudioServer::getBufferSize() {
+	return ap.getBufferSize();
+}
+int RtAudioServer::getSampleRate() {
+	return ap.getSampleRate();
 }

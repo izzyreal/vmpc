@@ -2,6 +2,7 @@
 
 #include <SerializationException.hpp>
 
+#include <rapidjson/filereadstream.h>
 #include <rapidjson/document.h>
 
 #include <algorithm>
@@ -27,11 +28,28 @@ AudioPreferences::AudioPreferences(const string& inputDevName, const string& out
 	this->sampleFormat = sampleFormat;
 }
 
-AudioPreferences::AudioPreferences(const string& settingsJson) {
-	StringStream s(settingsJson.c_str());
+AudioPreferences::AudioPreferences(const string& filePath) {
+	FILE* fp = fopen(filePath.c_str(), "r"); // non-Windows use "r"
+	char readBuffer[4096];
+	FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 	Document d;
-	d.ParseStream(s);
+	d.ParseStream(is);
+	fclose(fp);
 
+	/*
+	if (!d.HasMember("driverType")) {
+		throw new SerializationException("driverType", "not found while deserializing");
+	}
+	if (!d.HasMember("bufferSize")) {
+		throw new SerializationException("bufferSize", "not found while deserializing");
+	}
+	if (!d.HasMember("inputDevName")) {
+		throw new SerializationException("inputDevName", "not found while deserializing");
+	}
+	if (!d.HasMember("outputDevName")) {
+		throw new SerializationException("outputDevName", "not found while deserializing");
+	}
+	*/
 	const auto driverTypeString = d["driverType"].GetString();
 	bool driverTypeFound = false;
 	
@@ -48,9 +66,10 @@ AudioPreferences::AudioPreferences(const string& settingsJson) {
 		throw new SerializationException("driverType", string(driverTypeString) + " not found in map AudioPreferences::driverTypeNames while deserializing");
 	}
 
-	const auto sampleFormatString = d["sampleFormat"].GetString();
+	//const auto sampleFormatString = d["sampleFormat"].GetString();
 	bool sampleFormatFound = false;
 
+	/*
 	map<SampleFormat, string>::iterator it2;
 	for (it2 = sampleFormatNames.begin(); it2 != sampleFormatNames.end(); it2++) {
 		if (sampleFormatString == it2->second) {
@@ -63,9 +82,10 @@ AudioPreferences::AudioPreferences(const string& settingsJson) {
 	if (!sampleFormatFound) {
 		throw new SerializationException("sampleFormat", string(sampleFormatString) + " not found in map AudioPreferences::sampleFormatNames while deserializing");
 	}
+	*/
 
 	bufferSize = d["bufferSize"].GetUint();
-	inputDevName = d["inputDevName"].GetString();
+	//inputDevName = d["inputDevName"].GetString();
 	outputDevName = d["outputDevName"].GetString();
 }
 

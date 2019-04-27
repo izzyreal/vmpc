@@ -9,11 +9,15 @@
 #include <SDL_image.h>
 #include <SDL_render.h>
 
+#include <SerializationException.hpp>
+
 #include "StartUp.hpp"
 
 #include <file/FileUtil.hpp>
+#include <file/File.hpp>
 
 #include <Mpc.hpp>
+#include <StartUp.hpp>
 #include <audiomidi/AudioMidiServices.hpp>
 #include <audio/server/ExternalAudioServer.hpp>
 #include <lcdgui/LayeredScreen.hpp>
@@ -24,7 +28,6 @@
 
 #include <audio/RtAudioServer.hpp>
 #include <audio/AudioPreferences.hpp>
-
 
 #if defined(__cplusplus)
 extern "C" {
@@ -64,21 +67,26 @@ rtaudio_callback(
 
 int main(int argc, char *argv[]) {
 
-	AudioPreferences ap = AudioPreferences();
+	const auto preferencesFilePath = moduru::file::FileUtil::join_with_separator(mpc::StartUp::home, "vMPC", "audio_preferences.json");
+
+	RtAudioServer* audioServer = new RtAudioServer(rtaudio_callback, preferencesFilePath);
 
 	mpcInstance = new Mpc();
-	mpcInstance->init("rtaudio", ap.getSampleRate());
+	mpcInstance->init("rtaudio", audioServer->getSampleRate());
 	mpcInstance->getLayeredScreen().lock()->openScreen("sequencer");
 	mpcInstance->loadDemoBeat();
-	mpcInstance->getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(ap.getBufferSize());
-
-	RtAudioServer audioServer(rtaudio_callback, ap);
+	mpcInstance->getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(audioServer->getBufferSize());
 
 	auto gui = Gui(mpcInstance);
 	gui.initSDL();
     gui.setUserScale(1.0f);
-    gui.startLoop();
+
+	audioServer->start();
+
+	gui.startLoop();
 	gui.destroySDL();
+	
+	delete audioServer;
 	delete mpcInstance;
 	return 0;
 }
