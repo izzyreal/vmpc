@@ -20,7 +20,6 @@ void RtAudioServer::loadPreferences() {
 		const char* msg = e.what();
 		printf("%s\n", msg);
 		ap = AudioPreferences();
-		return;
 	}
 }
 
@@ -70,7 +69,6 @@ void RtAudioServer::start() {
 	const auto defaultOutputDevice = audio->getDeviceInfo(defaultOutputDeviceId).name;
 
 	unsigned int bufSize = ap.getBufferSize();
-
 	auto devId = audio->getDefaultOutputDevice();
 
 	for (int i = 0; i < audio->getDeviceCount(); i++) {
@@ -87,6 +85,8 @@ void RtAudioServer::start() {
 
 	const auto sampleRate = ap.getSampleRate();
 	const auto audioFormat = RTAUDIO_FLOAT32;
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening RtAudio stream with:"));
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size: ") << bufSize);
 	audio->openStream(outParam, NULL, audioFormat, sampleRate, &bufSize, callback, (void*)bufSize);
 	audio->startStream();
 }

@@ -31,7 +31,6 @@ Gui::Gui(mpc::Mpc* mpc)
 			int x = padX + ((padWidth + padSpace) * col);
 			int y = padY + ((padWidth + padSpace) * row);
 			auto comp = make_shared<SvgComponent>(MRECT(x, y, x + padWidth, y + padWidth), "pad" + rows[col][row], cairo_code_pad_render);
-			printf("comp name: %s\n", comp->getName().c_str());
 			group->addComp(comp);
 		}
 	}
@@ -50,7 +49,6 @@ void Gui::refreshDesktopSize() {
     for (int i = 0; i < SDL_GetNumVideoDisplays(); i++) {
         SDL_DisplayMode m;
         SDL_GetCurrentDisplayMode(i, &m);
-        //       printf("Resolution of display %i: %i x %i\n", i, m.w, m.h);
         desktopWidth = m.w;
         desktopHeight = m.h;
         // We're only going for the main display for now
@@ -60,7 +58,7 @@ void Gui::refreshDesktopSize() {
 
 void Gui::refreshDrawableSize() {
     SDL_GL_GetDrawableSize(sdlWindow, &drawableWidth, &drawableHeight);
-    printf("Drawable: %i x %i\n", drawableWidth, drawableHeight);
+    LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Drawable size of SDL window: ") << drawableWidth << ", " << drawableHeight);
 }
 
 // First create surface

@@ -2,6 +2,8 @@
 #include "AudioPreferences.hpp"
 #include "RtAudio.h"
 
+#include <log4cplus/log4cplus.h>
+
 class RtAudioServer
 {
 public:
@@ -19,7 +21,7 @@ public:
 	int getBufferSize();
 	int getSampleRate();
 
-private:
+	log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("main"));
 	RtAudioCallback callback;
 	RtAudio* audio = nullptr;
 	AudioPreferences ap;

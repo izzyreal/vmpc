@@ -11,6 +11,8 @@
 #include <SDL_image.h>
 #include <SDL_render.h>
 
+#include <log4cplus/log4cplus.h>
+
 using namespace std;
 
 namespace mpc {
@@ -90,5 +92,7 @@ private:
 	void handleMouseDown(const SDL_MouseButtonEvent&);
 	weak_ptr<Component> findUpperContains(const vector<weak_ptr<Component>>& components, const int x, const int y);
 
+private:
+	log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("main"));
 };
 

@@ -33,11 +33,12 @@ foreach(_source IN ITEMS ${_source_list_main})
     source_group("${_source_path_msvc}" FILES "${_source}")
 endforeach()
 
+ADD_DEFINITIONS(-DUNICODE)
+ADD_DEFINITIONS(-D_UNICODE)
+
 add_executable(vmpc ${_source_list_main})
 conan_target_link_libraries(vmpc)
 
-message("runtime output dir:")
-message("${CMAKE_CFG_INTDIR}")
 
 if(MSVC)
     SET(CMAKE_SHARED_LINKER_FLAGS /MANIFEST:NO)

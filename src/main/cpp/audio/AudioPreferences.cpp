@@ -30,6 +30,7 @@ AudioPreferences::AudioPreferences(const string& inputDevName, const string& out
 
 AudioPreferences::AudioPreferences(const string& filePath) {
 	FILE* fp = fopen(filePath.c_str(), "r"); // non-Windows use "r"
+	if (!fp) return;
 	char readBuffer[4096];
 	FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 	Document d;
@@ -46,6 +47,9 @@ AudioPreferences::AudioPreferences(const string& filePath) {
 		throw SerializationException("inputDevName", "not found while deserializing");
 	}
 	if (!d.HasMember("outputDevName")) {
+		throw SerializationException("outputDevName", "not found while deserializing");
+	}
+	if (!d.HasMember("sampleFormat")) {
 		throw SerializationException("outputDevName", "not found while deserializing");
 	}
 	
@@ -65,10 +69,9 @@ AudioPreferences::AudioPreferences(const string& filePath) {
 		throw new SerializationException("driverType", string(driverTypeString) + " not found in map AudioPreferences::driverTypeNames while deserializing");
 	}
 
-	//const auto sampleFormatString = d["sampleFormat"].GetString();
+	const auto sampleFormatString = d["sampleFormat"].GetString();
 	bool sampleFormatFound = false;
 
-	/*
 	map<SampleFormat, string>::iterator it2;
 	for (it2 = sampleFormatNames.begin(); it2 != sampleFormatNames.end(); it2++) {
 		if (sampleFormatString == it2->second) {
@@ -76,15 +79,14 @@ AudioPreferences::AudioPreferences(const string& filePath) {
 			sampleFormatFound = true;
 			break;
 		}
-	}z
+	}
 
 	if (!sampleFormatFound) {
 		throw new SerializationException("sampleFormat", string(sampleFormatString) + " not found in map AudioPreferences::sampleFormatNames while deserializing");
 	}
-	*/
 
 	bufferSize = d["bufferSize"].GetUint();
-	//inputDevName = d["inputDevName"].GetString();
+	inputDevName = d["inputDevName"].GetString();
 	outputDevName = d["outputDevName"].GetString();
 }
 
@@ -131,6 +133,9 @@ const string AudioPreferences::serialize()
 		throw new SerializationException("sampleFormat", "not found in map AudioPreferences::sampleFormatNames");
 	}
 
+	w.String("sampleFormat");
+	w.String(sampleFormatNames[sampleFormat]);
+
 	w.EndObject();
 	return s.GetString();
 }
@@ -157,9 +162,14 @@ const unsigned short AudioPreferences::getDefaultBufferSize() {
 #elif defined (__linux__)
 	return 1024; // TODO - What is a sane default here?
 #else // assume Windows
-	return 512; // If we will use WASAPI as default driver type, we could probably set this lower, like 512
+	return 256; // If we will use WASAPI as default driver type, we could probably set this lower, like 512
 #endif
 }
+
+
+/**
+* The getters that we're interested in when actually starting an audio stream
+**/
 
 const string& AudioPreferences::getInputDevName() {
 	return inputDevName;

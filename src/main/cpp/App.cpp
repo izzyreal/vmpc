@@ -1,9 +1,10 @@
 #include <stdlib.h>
 
+#include <log4cplus/log4cplus.h>
+
 #include <Gui.hpp>
 
 #include <cairo.h>
-
 
 #include <SDL.h>        
 #include <SDL_image.h>
@@ -36,6 +37,8 @@ extern "C" {
 using namespace moduru;
 using namespace mpc;
 
+using namespace log4cplus;
+
 static Mpc* mpcInstance = nullptr;
 
 
@@ -66,9 +69,22 @@ rtaudio_callback(
 }
 
 int main(int argc, char *argv[]) {
+	log4cplus::Initializer initializer;
+	log4cplus::BasicConfigurator config;
+	config.configure();
+
+	log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("main"));
+
+	const auto logFilePath = moduru::file::FileUtil::join_with_separator(mpc::StartUp::home, "vMPC", "vmpc2000xl.log");
+	
+	SharedAppenderPtr fileAppender(new FileAppender(LOG4CPLUS_STRING_TO_TSTRING(logFilePath)));
+	fileAppender->setName(LOG4CPLUS_TEXT("file_appender"));
+	fileAppender->setLayout(make_unique<TTCCLayout>());
+	logger.addAppender(fileAppender);
+
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Starting VMPC2000XL..."));
 
 	const auto preferencesFilePath = moduru::file::FileUtil::join_with_separator(mpc::StartUp::home, "vMPC", "audio_preferences.json");
-
 	RtAudioServer* audioServer = new RtAudioServer(rtaudio_callback, preferencesFilePath);
 
 	mpcInstance = new Mpc();
