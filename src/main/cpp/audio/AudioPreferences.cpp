@@ -36,20 +36,19 @@ AudioPreferences::AudioPreferences(const string& filePath) {
 	d.ParseStream(is);
 	fclose(fp);
 
-	/*
 	if (!d.HasMember("driverType")) {
-		throw new SerializationException("driverType", "not found while deserializing");
+		throw SerializationException("driverType", "not found while deserializing");
 	}
 	if (!d.HasMember("bufferSize")) {
-		throw new SerializationException("bufferSize", "not found while deserializing");
+		throw SerializationException("bufferSize", "not found while deserializing");
 	}
 	if (!d.HasMember("inputDevName")) {
-		throw new SerializationException("inputDevName", "not found while deserializing");
+		throw SerializationException("inputDevName", "not found while deserializing");
 	}
 	if (!d.HasMember("outputDevName")) {
-		throw new SerializationException("outputDevName", "not found while deserializing");
+		throw SerializationException("outputDevName", "not found while deserializing");
 	}
-	*/
+	
 	const auto driverTypeString = d["driverType"].GetString();
 	bool driverTypeFound = false;
 	
@@ -77,7 +76,7 @@ AudioPreferences::AudioPreferences(const string& filePath) {
 			sampleFormatFound = true;
 			break;
 		}
-	}
+	}z
 
 	if (!sampleFormatFound) {
 		throw new SerializationException("sampleFormat", string(sampleFormatString) + " not found in map AudioPreferences::sampleFormatNames while deserializing");

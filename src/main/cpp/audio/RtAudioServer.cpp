@@ -17,8 +17,8 @@ void RtAudioServer::loadPreferences() {
 		ap = AudioPreferences(filePath);
 	}
 	catch (const SerializationException& e) {
-		auto msg = e.what();
-		printf(msg);
+		const char* msg = e.what();
+		printf("%s\n", msg);
 		ap = AudioPreferences();
 		return;
 	}
