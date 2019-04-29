@@ -88,7 +88,10 @@ void RtAudioServer::start() {
 	const auto audioFormat = RTAUDIO_FLOAT32;
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening RtAudio stream with:"));
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size: ") << bufSize);
-	audio->openStream(outParam, NULL, audioFormat, sampleRate, &bufSize, callback, callbackData);
+	RtAudio::StreamOptions options;
+	options.numberOfBuffers = 1;
+	options.priority = RTAUDIO_SCHEDULE_REALTIME;
+	audio->openStream(outParam, NULL, audioFormat, sampleRate, &bufSize, callback, callbackData, &options);
 	audio->startStream();
 }
 

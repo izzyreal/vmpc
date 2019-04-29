@@ -61,14 +61,7 @@ rtaudio_callback(
 	auto as = callbackData->mpc->getAudioMidiServices().lock()->getExternalAudioServer();
 	if (as == nullptr) return 0;
 	auto bufSize = as->getBufferSize();
-	static float* tootOut[2]{ new float[bufSize], new float[bufSize] };
-	as->work(nullptr, tootOut, bufSize, 0, 2);
-
-	int counter = 0;
-	for (int i = 0; i < bufSize; i++) {
-		buf[counter++] = tootOut[0][i];
-		buf[counter++] = tootOut[1][i];
-	}
+	as->work(nullptr, buf, bufSize, 0, 2);
 	return 0;
 }
 
