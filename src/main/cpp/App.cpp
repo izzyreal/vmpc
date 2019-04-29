@@ -42,7 +42,7 @@ using namespace log4cplus;
 static Mpc* mpcInstance = nullptr;
 
 struct CallbackData {
-	weak_ptr<ctoot::audio::server::ExternalAudioServer> externalAudioServer;
+	mpc::Mpc* mpc;
 };
 
 static int
@@ -52,14 +52,15 @@ rtaudio_callback(
 	unsigned int		nFrames,
 	double			streamtime,
 	RtAudioStreamStatus	status,
-	void			*userdata)
+	void			*userData)
 {
 	float	*buf = (float*)outbuf;
 	unsigned int remainFrames;
 
-	auto as = mpcInstance->getAudioMidiServices().lock()->getExternalAudioServer();
+	auto callbackData = (CallbackData*)userData;
+	auto as = callbackData->mpc->getAudioMidiServices().lock()->getExternalAudioServer();
 	if (as == nullptr) return 0;
-	unsigned int bufSize = (unsigned int) userdata;
+	auto bufSize = as->getBufferSize();
 	static float* tootOut[2]{ new float[bufSize], new float[bufSize] };
 	as->work(nullptr, tootOut, bufSize, 0, 2);
 
@@ -91,10 +92,11 @@ int main(int argc, char *argv[]) {
 
 	// Then we set up the audio server
 	const auto preferencesFilePath = moduru::file::FileUtil::joinPath(mpc::StartUp::home, "vMPC", "audio_preferences.json");
-	RtAudioServer* audioServer = new RtAudioServer(rtaudio_callback, preferencesFilePath);
 
 	// and instantiate the MPC
 	mpcInstance = new Mpc();
+	CallbackData callbackData{ mpcInstance };
+	RtAudioServer* audioServer = new RtAudioServer(rtaudio_callback, (void*)&callbackData, preferencesFilePath);
 	mpcInstance->init("rtaudio", audioServer->getSampleRate());
 	mpcInstance->getLayeredScreen().lock()->openScreen("sequencer");
 	mpcInstance->loadDemoBeat();

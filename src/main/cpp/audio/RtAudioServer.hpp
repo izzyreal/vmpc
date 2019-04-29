@@ -7,7 +7,7 @@
 class RtAudioServer
 {
 public:
-	RtAudioServer(const RtAudioCallback& callback, const string& filePath);
+	RtAudioServer(const RtAudioCallback& callback, void* callbackData, const string& filePath);
 	~RtAudioServer();
 
 private:
@@ -23,6 +23,7 @@ public:
 
 	log4cplus::Logger logger = log4cplus::Logger::getRoot();
 	RtAudioCallback callback;
+	void* callbackData;
 	RtAudio* audio = nullptr;
 	AudioPreferences ap;
 	string filePath = "";

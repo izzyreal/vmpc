@@ -4,9 +4,10 @@
 
 #include <rapidjson/document.h>
 
-RtAudioServer::RtAudioServer(const RtAudioCallback& callback, const string& filePath)
+RtAudioServer::RtAudioServer(const RtAudioCallback& callback, void* callbackData, const string& filePath)
 {
 	this->callback = callback;
+	this->callbackData = callbackData;
 	this->ap = ap;
 	this->filePath = filePath;
 	loadPreferences();
@@ -87,7 +88,7 @@ void RtAudioServer::start() {
 	const auto audioFormat = RTAUDIO_FLOAT32;
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening RtAudio stream with:"));
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size: ") << bufSize);
-	audio->openStream(outParam, NULL, audioFormat, sampleRate, &bufSize, callback, (void*)bufSize);
+	audio->openStream(outParam, NULL, audioFormat, sampleRate, &bufSize, callback, callbackData);
 	audio->startStream();
 }
 
