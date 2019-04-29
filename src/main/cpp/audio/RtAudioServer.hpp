@@ -21,7 +21,7 @@ public:
 	int getBufferSize();
 	int getSampleRate();
 
-	log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("main"));
+	log4cplus::Logger logger = log4cplus::Logger::getRoot();
 	RtAudioCallback callback;
 	RtAudio* audio = nullptr;
 	AudioPreferences ap;

@@ -41,6 +41,9 @@ using namespace log4cplus;
 
 static Mpc* mpcInstance = nullptr;
 
+struct CallbackData {
+	weak_ptr<ctoot::audio::server::ExternalAudioServer> externalAudioServer;
+};
 
 static int
 rtaudio_callback(
@@ -69,41 +72,50 @@ rtaudio_callback(
 }
 
 int main(int argc, char *argv[]) {
+	
+	// First we set up the logger
+	const auto logFilePath = moduru::file::FileUtil::joinPath(mpc::StartUp::home, "vMPC", "vmpc2000xl.log");
+	
+	SharedAppenderPtr fileAppender(new FileAppender(LOG4CPLUS_STRING_TO_TSTRING(logFilePath), std::ios_base::app));
+	fileAppender->setLayout(make_unique<TTCCLayout>());
+	
 	log4cplus::Initializer initializer;
 	log4cplus::BasicConfigurator config;
 	config.configure();
 
-	log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("main"));
-
-	const auto logFilePath = moduru::file::FileUtil::join_with_separator(mpc::StartUp::home, "vMPC", "vmpc2000xl.log");
-	
-	SharedAppenderPtr fileAppender(new FileAppender(LOG4CPLUS_STRING_TO_TSTRING(logFilePath)));
-	fileAppender->setName(LOG4CPLUS_TEXT("file_appender"));
-	fileAppender->setLayout(make_unique<TTCCLayout>());
+	auto logger = log4cplus::Logger::getRoot();
 	logger.addAppender(fileAppender);
 
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Starting VMPC2000XL..."));
 
-	const auto preferencesFilePath = moduru::file::FileUtil::join_with_separator(mpc::StartUp::home, "vMPC", "audio_preferences.json");
+
+	// Then we set up the audio server
+	const auto preferencesFilePath = moduru::file::FileUtil::joinPath(mpc::StartUp::home, "vMPC", "audio_preferences.json");
 	RtAudioServer* audioServer = new RtAudioServer(rtaudio_callback, preferencesFilePath);
 
+	// and instantiate the MPC
 	mpcInstance = new Mpc();
 	mpcInstance->init("rtaudio", audioServer->getSampleRate());
 	mpcInstance->getLayeredScreen().lock()->openScreen("sequencer");
 	mpcInstance->loadDemoBeat();
-	mpcInstance->getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(audioServer->getBufferSize());
 
+	// We make the MPC audio engine aware of the buffer size
+	mpcInstance->getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(audioServer->getBufferSize());
+	
+	// Now the audio server can start its callbacks
+	audioServer->start();
+
+	// With the audio engine running, we instantiate the graphics side of things
 	auto gui = Gui(mpcInstance);
 	gui.initSDL();
     gui.setUserScale(1.0f);
-
-	audioServer->start();
-
 	gui.startLoop();
-	gui.destroySDL();
 	
+	// If the GUI loop has stopped, we try to clean up after ourselves	
+	gui.destroySDL();
 	delete audioServer;
 	delete mpcInstance;
+
 	return 0;
 }
 
