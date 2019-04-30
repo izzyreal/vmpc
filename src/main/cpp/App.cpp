@@ -69,19 +69,16 @@ int main(int argc, char *argv[]) {
 	
 	// First we set up the logger
 	const auto logFilePath = moduru::file::FileUtil::joinPath(mpc::StartUp::home, "vMPC", "vmpc2000xl.log");
-	
-	SharedAppenderPtr fileAppender(new FileAppender(LOG4CPLUS_STRING_TO_TSTRING(logFilePath), std::ios_base::app));
-	fileAppender->setLayout(make_unique<TTCCLayout>());
-	
+		
 	log4cplus::Initializer initializer;
 	log4cplus::BasicConfigurator config;
 	config.configure();
-
 	auto logger = log4cplus::Logger::getRoot();
+	SharedAppenderPtr fileAppender(new FileAppender(LOG4CPLUS_STRING_TO_TSTRING(logFilePath), std::ios_base::app));
+	fileAppender->setLayout(make_unique<TTCCLayout>());
 	logger.addAppender(fileAppender);
 
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Starting VMPC2000XL..."));
-
 
 	// Then we set up the audio server
 	const auto preferencesFilePath = moduru::file::FileUtil::joinPath(mpc::StartUp::home, "vMPC", "audio_preferences.json");
