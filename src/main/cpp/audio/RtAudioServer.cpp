@@ -79,10 +79,14 @@ void RtAudioServer::start() {
 		}
 	}
 
+	const auto devInfo = audio->getDeviceInfo(devId);
+
+	const auto maxOutputChannels = devInfo.outputChannels;
+
 	RtAudio::StreamParameters *outParam = new RtAudio::StreamParameters();
 
 	outParam->deviceId = devId;
-	outParam->nChannels = 2;
+	outParam->nChannels = maxOutputChannels > 10 ? 10 : maxOutputChannels;
 
 	const auto sampleRate = ap.getSampleRate();
 	const auto audioFormat = RTAUDIO_FLOAT32;
