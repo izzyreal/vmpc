@@ -54,14 +54,15 @@ rtaudio_callback(
 	RtAudioStreamStatus	status,
 	void			*userData)
 {
-	float	*buf = (float*)outbuf;
+	float* outbufFloat = (float*)outbuf;
+	float* inbufFloat = (float*)inbuf;
 	unsigned int remainFrames;
 
 	auto callbackData = (CallbackData*)userData;
 	auto as = callbackData->mpc->getAudioMidiServices().lock()->getExternalAudioServer();
 	if (as == nullptr) return 0;
 	auto bufSize = as->getBufferSize();
-	as->work(nullptr, buf, bufSize, 0, 2);
+	as->work(inbufFloat, outbufFloat, bufSize, 2, 5);
 	return 0;
 }
 
@@ -95,7 +96,13 @@ int main(int argc, char *argv[]) {
 	mpcInstance->getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(audioServer->getBufferSize());
 	
 	// Now the audio server can start its callbacks
-	audioServer->start();
+	
+	try {
+		audioServer->start();
+	}
+	catch (const RtAudioError& e) {
+		LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error while starting audio engine: ") << e.getMessage().c_str());
+	}
 
 	// With the audio engine running, we instantiate the graphics side of things
 	auto gui = Gui(mpcInstance);

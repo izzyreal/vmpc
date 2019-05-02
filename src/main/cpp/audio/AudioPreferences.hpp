@@ -64,6 +64,8 @@ private:
 public:
 	const string& getInputDevName();
 	const string& getOutputDevName();
+	void setInputDevName(const string&);
+	void setOutputDevName(const string&);
 
 	const unsigned short getBufferSize();
 	const unsigned short getSampleRate();

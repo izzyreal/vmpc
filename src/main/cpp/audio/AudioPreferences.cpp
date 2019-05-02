@@ -179,6 +179,14 @@ const string& AudioPreferences::getOutputDevName() {
 	return outputDevName;
 }
 
+void AudioPreferences::setInputDevName(const string& inputDevName) {
+	this->inputDevName = inputDevName;
+}
+
+void AudioPreferences::setOutputDevName(const string& outputDevName) {
+	this->outputDevName = outputDevName;
+}
+
 const unsigned short AudioPreferences::getBufferSize() {
 	return bufferSize;
 }
