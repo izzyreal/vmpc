@@ -5,6 +5,22 @@ Component::Component(const MRECT& rect, const string& name) {
 	this->name = name;
 }
 
+
+void Component::addChild(shared_ptr<Component> comp) {
+	children.push_back(move(comp));
+}
+
+weak_ptr<Component> Component::findTopChild(const int x, const int y) {
+	for (int i = children.size() - 1; i >= 0; i--) {
+		const auto c = children[i];
+		auto candidate = c->findTopChild(x, y).lock();
+		if (candidate) return candidate;
+		if (c->contains(x, y)) return c;
+	}
+	return {};
+}
+
+
 void Component::prepare(cairo_t* context, const bool& clip) {
 	auto l = static_cast<double>(r.L);
 	auto t = static_cast<double>(r.T);

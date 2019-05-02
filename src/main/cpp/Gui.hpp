@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gfx/SvgComponent.hpp"
-#include "gfx/Group.hpp"
 
 #include <vector>
 #include <memory>
@@ -54,10 +53,10 @@ private:
     int desktopWidth, desktopHeight;
     int initialWindowWidth, initialWindowHeight;
     float cairoScale;
-    vector<shared_ptr<Component>> components;
+	shared_ptr<Component> rootComponent;
 
 private:
-	void draw(bool dirtyOnly);
+	void draw();
 
 private:
     void initSDLSurface();
@@ -90,7 +89,6 @@ public:
 private:
     void handleKeyDown(const SDL_KeyboardEvent&);
 	void handleMouseDown(const SDL_MouseButtonEvent&);
-	weak_ptr<Component> findUpperContains(const vector<weak_ptr<Component>>& components, const int x, const int y);
 
 private:
 	log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("main"));

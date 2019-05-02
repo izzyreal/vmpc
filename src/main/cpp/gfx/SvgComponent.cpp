@@ -15,8 +15,5 @@ void SvgComponent::draw(cairo_t* context) {
 	svgRenderFunc(context);
 	restore(context, true);
 	dirty = false;
-}
-
-void SvgComponent::rotate(const float& angle) {
-	dirty = true;
+	Component::draw(context);
 }

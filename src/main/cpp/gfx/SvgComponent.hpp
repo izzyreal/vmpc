@@ -16,7 +16,5 @@ public:
 public:
 	void draw(cairo_t* context) override;
 
-public:
-	void rotate(const float& angle) override;
 };
 
