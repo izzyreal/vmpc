@@ -14,7 +14,7 @@ public:
 	~SvgComponent();
 
 public:
-	void draw(cairo_t* context) override;
+	void draw(cairo_t* context, bool dirtyOnly) override;
 
 };
 

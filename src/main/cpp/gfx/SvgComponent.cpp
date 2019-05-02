@@ -1,5 +1,7 @@
 #include "SvgComponent.hpp"
 
+#include <log4cplus/log4cplus.h>
+
 SvgComponent::SvgComponent(const MRECT& rect, const string& name, const std::function<void(cairo_t*)>& svgRenderFunc) : Component(rect, name)
 {
     this->svgRenderFunc = svgRenderFunc;
@@ -10,10 +12,18 @@ SvgComponent::~SvgComponent()
 {
 }
 
-void SvgComponent::draw(cairo_t* context) {
-	prepare(context, true);
-	svgRenderFunc(context);
-	restore(context, true);
-	dirty = false;
-	Component::draw(context);
+void SvgComponent::draw(cairo_t* context, bool dirtyOnly) {
+	
+	if (!dirtyOnly || (dirtyOnly && dirty)) {
+	
+		auto logger = log4cplus::Logger::getRoot();
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Drawing SvgComponent ") << LOG4CPLUS_STRING_TO_TSTRING(name));
+
+		prepare(context);
+		svgRenderFunc(context);
+		restore(context);
+		dirty = false;
+	}
+
+	Component::draw(context, dirtyOnly);
 }

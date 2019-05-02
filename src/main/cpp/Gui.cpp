@@ -1,5 +1,8 @@
 #include "Gui.hpp"
 
+#include "gfx/SvgComponent.hpp"
+#include "gfx/Panel.hpp"
+
 #include <Mpc.hpp>
 #include <hardware/Hardware.hpp>
 #include <hardware/HwPad.hpp>
@@ -32,6 +35,9 @@ Gui::Gui(mpc::Mpc* mpc)
 			rootComponent->addChild(make_shared<SvgComponent>(MRECT(x, y, x + padWidth, y + padWidth), "pad" + rows[col][row], cairo_code_pad_render));
 		}
 	}
+
+	rootComponent->addChild(make_shared<Panel>(MRECT(100, 100, 500, 700), "audio-preferences-panel"));
+
 	initBackground();
 }
 
@@ -100,7 +106,6 @@ void Gui::scaleCairoContext() {
 }
 
 void Gui::draw() {
-	rootComponent->draw(cairoContext);
     SDL_UpdateTexture(sdlTexture, NULL, (unsigned char*)sdlSurface->pixels, sdlSurface->pitch);
     SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
     SDL_RenderPresent(sdlRenderer);
@@ -114,7 +119,8 @@ void Gui::setUserScale(const float& userScale) {
     initSDLSurface();
     initSDLTexture();
     initCairo();
-    draw();
+	rootComponent->draw(cairoContext, false);
+	draw();
 }
 
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gfx/SvgComponent.hpp"
+#include "gfx/Component.hpp"
 
 #include <vector>
 #include <memory>
