@@ -37,6 +37,8 @@ AudioPreferences::AudioPreferences(const string& filePath) {
 	d.ParseStream(is);
 	fclose(fp);
 
+	if (!d.IsObject()) return;
+
 	if (!d.HasMember("driverType")) {
 		throw SerializationException("driverType", "not found while deserializing");
 	}
