@@ -1,10 +1,10 @@
-#include "RtAudioServer.hpp"
+#include "PortAudioWrapper.hpp"
 
 #include <file/File.hpp>
 
 #include <rapidjson/document.h>
 
-RtAudioServer::RtAudioServer(PaStreamCallback* callback, void* callbackData, const string& filePath)
+PortAudioWrapper::PortAudioWrapper(PaStreamCallback* callback, void* callbackData, const string& filePath)
 {
     this->callback = callback;
 	this->callbackData = callbackData;
@@ -12,7 +12,7 @@ RtAudioServer::RtAudioServer(PaStreamCallback* callback, void* callbackData, con
 	loadPreferences();
 }
 
-void RtAudioServer::loadPreferences() {
+void PortAudioWrapper::loadPreferences() {
 	try {
 		ap = AudioPreferences(filePath);
 	}
@@ -23,7 +23,7 @@ void RtAudioServer::loadPreferences() {
 	}
 }
 
-void RtAudioServer::storePreferences() {
+void PortAudioWrapper::storePreferences() {
 	moduru::file::File f(filePath, nullptr);
 	f.create();
 	f.openWrite();
@@ -32,13 +32,13 @@ void RtAudioServer::storePreferences() {
 	f.close();
 }
 
-RtAudioServer::~RtAudioServer()
+PortAudioWrapper::~PortAudioWrapper()
 {
 	storePreferences();
 	safeDestroy();
 }
 
-void RtAudioServer::safeDestroy() {
+void PortAudioWrapper::safeDestroy() {
 	if (stream != nullptr) {
 		if (!Pa_IsStreamStopped(stream)) {
             Pa_StopStream(stream);
@@ -48,7 +48,7 @@ void RtAudioServer::safeDestroy() {
 	}
 }
 
-void RtAudioServer::start() {
+void PortAudioWrapper::start() {
 
 	safeDestroy();
     
@@ -143,26 +143,28 @@ void RtAudioServer::start() {
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening portaudio stream..."));
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Sample rate: ") << sampleRate);
         LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size: ") << bufSize);
-        auto err = Pa_OpenStream(&stream, inParam, outParam, sampleRate, bufSize, paNoFlag, callback, callbackData);
-        if (err != paNoError) {
-            LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error opening portaudio stream: "));
-            auto msg = Pa_GetErrorText(err);
-            LOG4CPLUS_ERROR_STR(logger, msg);
-        }
-        err = Pa_StartStream(stream);
-        if (err != paNoError) printf("startstream error\n");
+        logError(Pa_OpenStream(&stream, inParam, outParam, sampleRate, bufSize, paNoFlag, callback, callbackData));
+        logError(Pa_StartStream(stream));
 	}
 }
 
-void RtAudioServer::stopAndCloseStream() {
+void PortAudioWrapper::logError(const PaError &e) {
+    if (e != paNoError) {
+        LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("portaudio error: "));
+        auto msg = Pa_GetErrorText(e);
+        LOG4CPLUS_ERROR_STR(logger, msg);
+    }
+}
+
+void PortAudioWrapper::stopAndCloseStream() {
 //    audio->stopStream();
 //    audio->closeStream();
     safeDestroy();
 }
 
-int RtAudioServer::getBufferSize() {
+int PortAudioWrapper::getBufferSize() {
 	return ap.getBufferSize();
 }
-int RtAudioServer::getSampleRate() {
+int PortAudioWrapper::getSampleRate() {
 	return ap.getSampleRate();
 }

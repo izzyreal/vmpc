@@ -4,16 +4,17 @@
 
 #include <log4cplus/log4cplus.h>
 
-class RtAudioServer
+class PortAudioWrapper
 {
 public:
-	RtAudioServer(PaStreamCallback* callback, void* callbackData, const string& filePath);
-	~RtAudioServer();
+	PortAudioWrapper(PaStreamCallback* callback, void* callbackData, const string& filePath);
+	~PortAudioWrapper();
 
 private:
 	void stopAndCloseStream();
 	void safeDestroy();
-
+    void logError(const PaError& e);
+    
 public:
 	void start();
 	void storePreferences();

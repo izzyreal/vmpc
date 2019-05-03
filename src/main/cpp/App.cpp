@@ -27,7 +27,7 @@
 
 #include <portaudio.h>
 
-#include <audio/RtAudioServer.hpp>
+#include <audio/PortAudioWrapper.hpp>
 #include <audio/AudioPreferences.hpp>
 
 using namespace moduru;
@@ -35,8 +35,6 @@ using namespace moduru::file;
 using namespace mpc;
 
 using namespace log4cplus;
-
-static Mpc* mpcInstance = nullptr;
 
 struct CallbackData {
 	mpc::Mpc* mpc;
@@ -76,35 +74,27 @@ int main(int argc, char *argv[]) {
 	const auto preferencesFilePath = FileUtil::joinPath(mpc::StartUp::home, "vMPC", "audio_preferences.json");
 
 	// and instantiate the MPC
-	mpcInstance = new Mpc();
-	CallbackData callbackData{ mpcInstance };
-	RtAudioServer* audioServer = new RtAudioServer(pa_callback, (void*)&callbackData, preferencesFilePath);
-	mpcInstance->init("rtaudio", audioServer->getSampleRate());
-	mpcInstance->getLayeredScreen().lock()->openScreen("sequencer");
-	mpcInstance->loadDemoBeat();
+    Mpc mpc;
+	CallbackData callbackData{ &mpc };
+	PortAudioWrapper portAudioWrapper(pa_callback, (void*)&callbackData, preferencesFilePath);
+	mpc.init("rtaudio", portAudioWrapper.getSampleRate());
+	mpc.getLayeredScreen().lock()->openScreen("sequencer");
+	mpc.loadDemoBeat();
 
 	// We make the MPC audio engine aware of the buffer size
-	mpcInstance->getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(audioServer->getBufferSize());
+	mpc.getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(portAudioWrapper.getBufferSize());
 	
-	// Now the audio server can start its callbacks
-	
-	try {
-		audioServer->start();
-	}
-	catch (const PaError& e) {
-		LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error while starting audio engine: ") << Pa_GetErrorText(e));
-	}
+	// Now portaudio can start its callbacks
+    portAudioWrapper.start();
 
 	// With the audio engine running, we instantiate the graphics side of things
-	auto gui = Gui(mpcInstance);
+	auto gui = Gui(&mpc);
 	gui.initSDL();
     gui.setUserScale(1.0f);
 	gui.startLoop();
 	
 	// If the GUI loop has stopped, we try to clean up after ourselves	
 	gui.destroySDL();
-	delete audioServer;
-	delete mpcInstance;
 
 	return 0;
 }
