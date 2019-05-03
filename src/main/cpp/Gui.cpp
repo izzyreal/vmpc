@@ -36,7 +36,7 @@ Gui::Gui(mpc::Mpc* mpc)
 		}
 	}
 
-	rootComponent->addChild(make_shared<Panel>(MRECT(100, 100, 500, 700), "audio-preferences-panel"));
+	//rootComponent->addChild(make_shared<Panel>(MRECT(100, 100, 500, 700), "audio-preferences-panel"));
 
 	initBackground();
 }

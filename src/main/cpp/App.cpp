@@ -66,6 +66,9 @@ int main(int argc, char *argv[]) {
 	fileAppender->setLayout(make_unique<TTCCLayout>());
 	logger.addAppender(fileAppender);
 
+    logger.setLogLevel(INFO_LOG_LEVEL);
+//    logger.setLogLevel(TRACE_LOG_LEVEL);
+    
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Starting VMPC2000XL..."));
 
 	// Then we set up the audio server

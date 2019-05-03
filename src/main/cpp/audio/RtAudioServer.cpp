@@ -109,6 +109,9 @@ void RtAudioServer::start() {
 		inParam->device = inputDevId;
 		// The MPC2000XL has only 2 mono input channels
 		inParam->channelCount = maxInputChannels > 2 ? 2 : maxInputChannels;
+        inParam->hostApiSpecificStreamInfo = NULL;
+        inParam->sampleFormat = paFloat32;
+        inParam->suggestedLatency = Pa_GetDeviceInfo(inputDevId)->defaultLowInputLatency;
 	}
 	else {
 		// If we don't have enough mono input channels available, we don't bother setting up an input stream
@@ -117,6 +120,7 @@ void RtAudioServer::start() {
 
 	const auto outputDevInfo = Pa_GetDeviceInfo(outputDevId);
     const auto maxOutputChannels = outputDevInfo->maxOutputChannels;
+    LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("pa output dev max channels : ") << (int)maxOutputChannels);
 
     auto outParam = new PaStreamParameters();
 
@@ -124,6 +128,9 @@ void RtAudioServer::start() {
 		outParam->device = outputDevId;
 		// The MPC2000XL has only 10 mono output channels
 		outParam->channelCount = maxOutputChannels > 10 ? 10 : maxOutputChannels;
+        outParam->hostApiSpecificStreamInfo = NULL;
+        outParam->sampleFormat = paFloat32;
+        outParam->suggestedLatency = Pa_GetDeviceInfo(outputDevId)->defaultLowOutputLatency;
 	}
 	else {
 		// If we don't have enough mono output channels available, we don't bother setting up an output stream
@@ -133,16 +140,17 @@ void RtAudioServer::start() {
 	// A stream is only opened and started if there is at least a valid output device established
 	if (outParam != nullptr) {
 		const auto sampleRate = ap.getSampleRate();
-		//const auto audioFormat = RTAUDIO_FLOAT32;
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening portaudio stream..."));
-		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size: ") << bufSize);
-		//RtAudio::StreamOptions options;
-		//options.numberOfBuffers = 1;
-		//options.priority = RTAUDIO_SCHEDULE_REALTIME;
-		//audio->openStream(outParam, inParam, audioFormat, sampleRate, &bufSize, callback, callbackData, &options);
-		//audio->startStream();
-        Pa_OpenStream(&stream, inParam, outParam, sampleRate, bufSize, paNoFlag, callback, nullptr);
-        Pa_StartStream(stream);
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Sample rate: ") << sampleRate);
+        LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size: ") << bufSize);
+        auto err = Pa_OpenStream(&stream, inParam, outParam, sampleRate, bufSize, paNoFlag, callback, callbackData);
+        if (err != paNoError) {
+            LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error opening portaudio stream: "));
+            auto msg = Pa_GetErrorText(err);
+            LOG4CPLUS_ERROR_STR(logger, msg);
+        }
+        err = Pa_StartStream(stream);
+        if (err != paNoError) printf("startstream error\n");
 	}
 }
 
