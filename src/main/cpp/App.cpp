@@ -31,6 +31,7 @@
 #include <audio/AudioPreferences.hpp>
 
 using namespace moduru;
+using namespace moduru::file;
 using namespace mpc;
 
 using namespace log4cplus;
@@ -56,7 +57,7 @@ static int pa_callback(const void *inputBuffer, void *outputBuffer, unsigned lon
 int main(int argc, char *argv[]) {
 	
 	// First we set up the logger
-	const auto logFilePath = moduru::file::FileUtil::joinPath(mpc::StartUp::home, "vMPC", "vmpc2000xl.log");
+	const auto logFilePath = FileUtil::joinPath(mpc::StartUp::home, "vMPC", "vmpc2000xl.log");
 		
 	log4cplus::Initializer initializer;
 	log4cplus::BasicConfigurator config;
@@ -72,7 +73,7 @@ int main(int argc, char *argv[]) {
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Starting VMPC2000XL..."));
 
 	// Then we set up the audio server
-	const auto preferencesFilePath = moduru::file::FileUtil::joinPath(mpc::StartUp::home, "vMPC", "audio_preferences.json");
+	const auto preferencesFilePath = FileUtil::joinPath(mpc::StartUp::home, "vMPC", "audio_preferences.json");
 
 	// and instantiate the MPC
 	mpcInstance = new Mpc();
