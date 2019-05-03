@@ -18,7 +18,7 @@ set(_src_root_path_main "${CMAKE_CURRENT_SOURCE_DIR}/main/cpp")
 include_directories(${_src_root_path_main})
 
 file(
-    GLOB_RECURSE _source_list_main 
+    GLOB_RECURSE _source_list_main
     LIST_DIRECTORIES false
     RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
     "${_src_root_path_main}/.c*"
@@ -33,22 +33,20 @@ foreach(_source IN ITEMS ${_source_list_main})
     source_group("${_source_path_msvc}" FILES "${_source}")
 endforeach()
 
-ADD_DEFINITIONS(-DUNICODE)
-ADD_DEFINITIONS(-D_UNICODE)
-
 add_executable(vmpc ${_source_list_main})
 conan_target_link_libraries(vmpc)
 
-
 if(MSVC)
-    SET(CMAKE_SHARED_LINKER_FLAGS /MANIFEST:NO)
-	add_custom_command(TARGET
+  SET(CMAKE_SHARED_LINKER_FLAGS /MANIFEST:NO)
+  ADD_DEFINITIONS(-DUNICODE)
+  ADD_DEFINITIONS(-D_UNICODE)
+  add_custom_command(TARGET
                      vmpc
                    POST_BUILD
                    COMMAND
                      "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}/main/resources/dpiaware.manifest" -outputresource:\"${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/vmpc.exe"\;\#1
                    COMMENT
-                     "Adding custom manifest for dpi awareness..." 
+                     "Adding custom manifest for dpi awareness..."
                   )
 endif(MSVC)
 
@@ -59,7 +57,7 @@ set(_src_root_path_test "${CMAKE_CURRENT_SOURCE_DIR}/test")
 include_directories(${_src_root_path_test})
 
 file(
-    GLOB_RECURSE _source_list_test 
+    GLOB_RECURSE _source_list_test
     LIST_DIRECTORIES false
     RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
     "${_src_root_path_test}/*.c*"
