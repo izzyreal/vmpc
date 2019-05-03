@@ -4,11 +4,10 @@
 
 #include <rapidjson/document.h>
 
-RtAudioServer::RtAudioServer(const RtAudioCallback& callback, void* callbackData, const string& filePath)
+RtAudioServer::RtAudioServer(PaStreamCallback* callback, void* callbackData, const string& filePath)
 {
-	this->callback = callback;
+    this->callback = callback;
 	this->callbackData = callbackData;
-	this->ap = ap;
 	this->filePath = filePath;
 	loadPreferences();
 }
@@ -40,40 +39,39 @@ RtAudioServer::~RtAudioServer()
 }
 
 void RtAudioServer::safeDestroy() {
-	if (audio != nullptr) {
-		if (audio->isStreamRunning()) {
-			audio->stopStream();
+	if (stream != nullptr) {
+		if (!Pa_IsStreamStopped(stream)) {
+            Pa_StopStream(stream);
 		}
-		if (audio->isStreamOpen()) {
-			audio->closeStream();
-		}
-		delete audio;
+        Pa_CloseStream(stream);
+        stream = nullptr;
 	}
 }
 
 void RtAudioServer::start() {
 
 	safeDestroy();
-
-	map<DriverType, RtAudio::Api> apis = {
-	{ DriverType::ASIO, RtAudio::WINDOWS_ASIO },
-	{ DriverType::WASAPI, RtAudio::WINDOWS_WASAPI },
-	{ DriverType::DIRECTSOUND, RtAudio::WINDOWS_DS },
-	{ DriverType::CORE_AUDIO, RtAudio::MACOSX_CORE },
-	{ DriverType::PULSE_AUDIO, RtAudio::LINUX_PULSE }
+    
+	map<DriverType, PaHostApiTypeId> apis = {
+        { DriverType::ASIO, paASIO },
+        { DriverType::WASAPI, paWASAPI },
+        { DriverType::DIRECTSOUND, paDirectSound },
+        { DriverType::CORE_AUDIO, paCoreAudio }
 	};
 
-	audio = new RtAudio(apis[ap.getDriverType()]);
-
+	//audio = new RtAudio(apis[ap.getDriverType()]);
+    Pa_Initialize();
+    auto info = Pa_GetHostApiInfo(Pa_HostApiTypeIdToHostApiIndex(apis[ap.getDriverType()]));
 	unsigned int bufSize = ap.getBufferSize();
 	
 	// We start off with an input device ID that always works
-	auto inputDevId = audio->getDefaultInputDevice();
+	auto inputDevId = info->defaultInputDevice;
 
 	// But if the AudioPreferences contain an available input device name, we'll use that
 	bool inputNameFound = false;
-	for (int i = 0; i < audio->getDeviceCount(); i++) {
-		if (audio->getDeviceInfo(i).name.compare(ap.getInputDevName()) == 0) {
+	for (int i = 0; i < Pa_GetDeviceCount(); i++) {
+        
+		if (strcmp(Pa_GetDeviceInfo(i)->name, ap.getInputDevName().c_str()) == 0) {
 			inputNameFound = true;
 			inputDevId = i;
 			break;
@@ -81,75 +79,77 @@ void RtAudioServer::start() {
 	}
 
 	if (ap.getInputDevName().compare("") == 0 || !inputNameFound)
-		ap.setInputDevName(audio->getDeviceInfo(audio->getDefaultInputDevice()).name);
+		ap.setInputDevName(Pa_GetDeviceInfo(info->defaultInputDevice)->name);
 
 	// Same for output device ID
-	auto outputDevId = audio->getDefaultOutputDevice();
+    auto outputDevId = info->defaultOutputDevice;
 
-	bool outputNameFound = false;
-	for (int i = 0; i < audio->getDeviceCount(); i++) {
-		if (audio->getDeviceInfo(i).name.compare(ap.getOutputDevName()) == 0) {
-			outputNameFound = true;
-			outputDevId = i;
-			break;
-		}
-	}
+    bool outputNameFound = false;
+    for (int i = 0; i < Pa_GetDeviceCount(); i++) {
+        
+        if (strcmp(Pa_GetDeviceInfo(i)->name, ap.getOutputDevName().c_str()) == 0) {
+            outputNameFound = true;
+            outputDevId = i;
+            break;
+        }
+    }
 
-	if (ap.getOutputDevName().compare("") == 0 | !outputNameFound)
-		ap.setOutputDevName(audio->getDeviceInfo(audio->getDefaultOutputDevice()).name);
+    if (ap.getOutputDevName().compare("") == 0 || !outputNameFound)
+        ap.setOutputDevName(Pa_GetDeviceInfo(info->defaultOutputDevice)->name);
 
-	const auto inputDevInfo = audio->getDeviceInfo(inputDevId);
-	const auto maxInputChannels = inputDevInfo.inputChannels;
+    
+    /* Now we're ready to set up some streams */
+    
+    auto inParam = new PaStreamParameters();
 
-	auto inParam = new RtAudio::StreamParameters();
+    const auto inputDevInfo = Pa_GetDeviceInfo(inputDevId);
+	const auto maxInputChannels = inputDevInfo->maxInputChannels;
 
 	if (maxInputChannels >= 2) {
-		inParam->deviceId = inputDevId;
+		inParam->device = inputDevId;
 		// The MPC2000XL has only 2 mono input channels
-		inParam->nChannels = maxInputChannels > 2 ? 2 : maxInputChannels;
+		inParam->channelCount = maxInputChannels > 2 ? 2 : maxInputChannels;
 	}
 	else {
 		// If we don't have enough mono input channels available, we don't bother setting up an input stream
-		inParam = nullptr;
+        inParam = nullptr;
 	}
 
-	const auto outputDevInfo = audio->getDeviceInfo(outputDevId);
-	const auto maxOutputChannels = outputDevInfo.outputChannels;
+	const auto outputDevInfo = Pa_GetDeviceInfo(outputDevId);
+    const auto maxOutputChannels = outputDevInfo->maxOutputChannels;
 
-	auto outParam = new RtAudio::StreamParameters();
-
-	/*
-	const auto outSR = outputDevInfo.sampleRates;
-	const bool sampleRateSupported = find(outSR.begin(), outSR.end(), ap.getSampleRate()) != outSR.end();
-	*/
+    auto outParam = new PaStreamParameters();
 
 	if (maxOutputChannels >= 2) {
-		outParam->deviceId = outputDevId;
+		outParam->device = outputDevId;
 		// The MPC2000XL has only 10 mono output channels
-		outParam->nChannels = maxOutputChannels > 10 ? 10 : maxOutputChannels;
+		outParam->channelCount = maxOutputChannels > 10 ? 10 : maxOutputChannels;
 	}
 	else {
-		// If we don't have enough mono output channels available or sr is unsupported, we don't bother setting up an output stream
+		// If we don't have enough mono output channels available, we don't bother setting up an output stream
 		outParam = nullptr;
 	}
 
 	// A stream is only opened and started if there is at least a valid output device established
 	if (outParam != nullptr) {
 		const auto sampleRate = ap.getSampleRate();
-		const auto audioFormat = RTAUDIO_FLOAT32;
-		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening RtAudio stream with:"));
+		//const auto audioFormat = RTAUDIO_FLOAT32;
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening portaudio stream..."));
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size: ") << bufSize);
-		RtAudio::StreamOptions options;
-		options.numberOfBuffers = 1;
-		options.priority = RTAUDIO_SCHEDULE_REALTIME;
-		audio->openStream(outParam, inParam, audioFormat, sampleRate, &bufSize, callback, callbackData, &options);
-		audio->startStream();
+		//RtAudio::StreamOptions options;
+		//options.numberOfBuffers = 1;
+		//options.priority = RTAUDIO_SCHEDULE_REALTIME;
+		//audio->openStream(outParam, inParam, audioFormat, sampleRate, &bufSize, callback, callbackData, &options);
+		//audio->startStream();
+        Pa_OpenStream(&stream, inParam, outParam, sampleRate, bufSize, paNoFlag, callback, nullptr);
+        Pa_StartStream(stream);
 	}
 }
 
 void RtAudioServer::stopAndCloseStream() {
-	audio->stopStream();
-	audio->closeStream();
+//    audio->stopStream();
+//    audio->closeStream();
+    safeDestroy();
 }
 
 int RtAudioServer::getBufferSize() {

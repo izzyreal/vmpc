@@ -16,7 +16,7 @@ using namespace std;
 
 // We enumerate some of the most common driver types
 enum DriverType {
-	ASIO, CORE_AUDIO, DIRECTSOUND, WASAPI, PULSE_AUDIO
+	ASIO, CORE_AUDIO, DIRECTSOUND, WASAPI
 };
 
 // New sample formats can be added when required

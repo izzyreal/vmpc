@@ -100,8 +100,7 @@ map<DriverType, string> AudioPreferences::driverTypeNames =
 	{ DriverType::ASIO, "asio" },
 	{ DriverType::CORE_AUDIO, "core-audio" },
 	{ DriverType::DIRECTSOUND, "directsound" },
-	{ DriverType::WASAPI, "wasapi" },
-	{ DriverType::PULSE_AUDIO, "pulse-audio" }
+	{ DriverType::WASAPI, "wasapi" }
 };
 
 map<SampleFormat, string> AudioPreferences::sampleFormatNames =

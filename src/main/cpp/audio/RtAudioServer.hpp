@@ -1,13 +1,13 @@
 #pragma once
 #include "AudioPreferences.hpp"
-#include "RtAudio.h"
+#include "portaudio.h"
 
 #include <log4cplus/log4cplus.h>
 
 class RtAudioServer
 {
 public:
-	RtAudioServer(const RtAudioCallback& callback, void* callbackData, const string& filePath);
+	RtAudioServer(PaStreamCallback* callback, void* callbackData, const string& filePath);
 	~RtAudioServer();
 
 private:
@@ -22,9 +22,9 @@ public:
 	int getSampleRate();
 
 	log4cplus::Logger logger = log4cplus::Logger::getRoot();
-	RtAudioCallback callback;
+	PaStreamCallback* callback;
 	void* callbackData;
-	RtAudio* audio = nullptr;
+    PaStream* stream = nullptr;
 	AudioPreferences ap;
 	string filePath = "";
 };

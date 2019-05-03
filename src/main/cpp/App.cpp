@@ -25,14 +25,10 @@
 
 #include <math.h>
 
-#include <RtAudio.h>
+#include <portaudio.h>
 
 #include <audio/RtAudioServer.hpp>
 #include <audio/AudioPreferences.hpp>
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
 
 using namespace moduru;
 using namespace mpc;
@@ -45,27 +41,18 @@ struct CallbackData {
 	mpc::Mpc* mpc;
 };
 
-static int
-rtaudio_callback(
-	void			*outbuf,
-	void			*inbuf,
-	unsigned int		nFrames,
-	double			streamtime,
-	RtAudioStreamStatus	status,
-	void			*userData)
+static int pa_callback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo* timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
 {
-	float* outbufFloat = (float*)outbuf;
-	float* inbufFloat = (float*)inbuf;
-	unsigned int remainFrames;
-
-	auto callbackData = (CallbackData*)userData;
-	auto as = callbackData->mpc->getAudioMidiServices().lock()->getExternalAudioServer();
-	if (as == nullptr) return 0;
-	auto bufSize = as->getBufferSize();
-	as->work(inbufFloat, outbufFloat, bufSize, 2, 5);
-	return 0;
+    auto callbackData = (CallbackData*)userData;
+    auto as = callbackData->mpc->getAudioMidiServices().lock()->getExternalAudioServer();
+    if (as == nullptr) return 0;
+    float* in = (float*)inputBuffer;
+    float *out = (float*)outputBuffer;
+    auto bufSize = as->getBufferSize();
+    as->work(in, out, bufSize, 2, 5);
+    return 0;
 }
-
+    
 int main(int argc, char *argv[]) {
 	
 	// First we set up the logger
@@ -87,7 +74,7 @@ int main(int argc, char *argv[]) {
 	// and instantiate the MPC
 	mpcInstance = new Mpc();
 	CallbackData callbackData{ mpcInstance };
-	RtAudioServer* audioServer = new RtAudioServer(rtaudio_callback, (void*)&callbackData, preferencesFilePath);
+	RtAudioServer* audioServer = new RtAudioServer(pa_callback, (void*)&callbackData, preferencesFilePath);
 	mpcInstance->init("rtaudio", audioServer->getSampleRate());
 	mpcInstance->getLayeredScreen().lock()->openScreen("sequencer");
 	mpcInstance->loadDemoBeat();
@@ -100,8 +87,8 @@ int main(int argc, char *argv[]) {
 	try {
 		audioServer->start();
 	}
-	catch (const RtAudioError& e) {
-		LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error while starting audio engine: ") << e.getMessage().c_str());
+	catch (const PaError& e) {
+		LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error while starting audio engine: ") << Pa_GetErrorText(e));
 	}
 
 	// With the audio engine running, we instantiate the graphics side of things
@@ -117,7 +104,3 @@ int main(int argc, char *argv[]) {
 
 	return 0;
 }
-
-#if defined(__cplusplus)
-}
-#endif
