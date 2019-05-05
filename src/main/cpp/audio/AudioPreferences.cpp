@@ -150,7 +150,7 @@ DriverType AudioPreferences::getDefaultDriverType() {
 #elif defined (__linux__)
 	return DriverType::PULSE_AUDIO;
 #else // assume Windows
-	return DriverType::WASAPI;
+	return DriverType::DIRECTSOUND;
 #endif
 }
 

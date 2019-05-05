@@ -152,7 +152,7 @@ void PortAudioWrapper::logError(const PaError &e) {
     if (e != paNoError) {
         LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("portaudio error: "));
         auto msg = Pa_GetErrorText(e);
-        LOG4CPLUS_ERROR_STR(logger, msg);
+        LOG4CPLUS_ERROR_STR(logger, LOG4CPLUS_STRING_TO_TSTRING(msg));
     }
 }
 
