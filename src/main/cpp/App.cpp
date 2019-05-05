@@ -62,6 +62,31 @@ PortAudioWrapper instantiateAudioWrapper(CallbackData& data, const string& prefe
 
 #endif // AUDIO_LIBRARY == PORTAUDIO
 
+#if AUDIO_LIBRARY == RTAUDIO
+
+static int
+rtaudio_callback(
+	void			*outbuf,
+	void			*inbuf,
+	unsigned int		nFrames,
+	double			streamtime,
+	RtAudioStreamStatus	status,
+	void			*userData)
+{
+	float* outbufFloat = (float*)outbuf;
+	float* inbufFloat = (float*)inbuf;
+	unsigned int remainFrames;
+
+	auto callbackData = (CallbackData*)userData;
+	auto as = callbackData->mpc->getAudioMidiServices().lock()->getExternalAudioServer();
+	if (as == nullptr) return 0;
+	auto bufSize = as->getBufferSize();
+	as->work(inbufFloat, outbufFloat, bufSize, 2, 5);
+	return 0;
+}
+
+#endif
+
 int main(int argc, char *argv[]) {
 	
 	// First we set up the logger
