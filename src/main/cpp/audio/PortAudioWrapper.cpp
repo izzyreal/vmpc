@@ -59,7 +59,6 @@ void PortAudioWrapper::start() {
         { DriverType::CORE_AUDIO, paCoreAudio }
 	};
 
-	//audio = new RtAudio(apis[ap.getDriverType()]);
     Pa_Initialize();
     auto info = Pa_GetHostApiInfo(Pa_HostApiTypeIdToHostApiIndex(apis[ap.getDriverType()]));
 	unsigned int bufSize = ap.getBufferSize();
@@ -157,8 +156,6 @@ void PortAudioWrapper::logError(const PaError &e) {
 }
 
 void PortAudioWrapper::stopAndCloseStream() {
-//    audio->stopStream();
-//    audio->closeStream();
     safeDestroy();
 }
 
