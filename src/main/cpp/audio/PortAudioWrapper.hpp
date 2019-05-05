@@ -1,8 +1,9 @@
 #pragma once
-#include "AudioPreferences.hpp"
-#include "portaudio.h"
+#include "AbstractAudioWrapper.hpp"
 
-#include <log4cplus/log4cplus.h>
+#if AUDIO_LIBRARY == PORTAUDIO
+
+#include "portaudio.h"
 
 class PortAudioWrapper
 {
@@ -30,3 +31,4 @@ public:
 	string filePath = "";
 };
 
+#endif

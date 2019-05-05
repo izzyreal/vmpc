@@ -29,6 +29,7 @@
 
 #include <audio/PortAudioWrapper.hpp>
 #include <audio/AudioPreferences.hpp>
+#include <audio/AudioWrapperConfig.hpp>
 
 using namespace moduru;
 using namespace moduru::file;
@@ -39,6 +40,8 @@ using namespace log4cplus;
 struct CallbackData {
 	mpc::Mpc* mpc;
 };
+
+#if AUDIO_LIBRARY == PORTAUDIO
 
 static int pa_callback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo* timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
 {
@@ -51,7 +54,14 @@ static int pa_callback(const void *inputBuffer, void *outputBuffer, unsigned lon
     as->work(in, out, bufSize, 2, 5);
     return 0;
 }
-    
+
+PortAudioWrapper instantiateAudioWrapper(CallbackData& data, const string& preferencesFilePath) {
+
+	return PortAudioWrapper(pa_callback, (void*)&data, preferencesFilePath);
+}
+
+#endif // AUDIO_LIBRARY == PORTAUDIO
+
 int main(int argc, char *argv[]) {
 	
 	// First we set up the logger
@@ -76,16 +86,16 @@ int main(int argc, char *argv[]) {
 	// and instantiate the MPC
     Mpc mpc;
 	CallbackData callbackData{ &mpc };
-	PortAudioWrapper portAudioWrapper(pa_callback, (void*)&callbackData, preferencesFilePath);
-	mpc.init("rtaudio", portAudioWrapper.getSampleRate());
+	auto audioWrapper = instantiateAudioWrapper(callbackData, preferencesFilePath);
+	mpc.init("rtaudio", audioWrapper.getSampleRate());
 	mpc.getLayeredScreen().lock()->openScreen("sequencer");
 	mpc.loadDemoBeat();
 
 	// We make the MPC audio engine aware of the buffer size
-	mpc.getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(portAudioWrapper.getBufferSize());
+	mpc.getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(audioWrapper.getBufferSize());
 	
 	// Now portaudio can start its callbacks
-    portAudioWrapper.start();
+    audioWrapper.start();
 
 	// With the audio engine running, we instantiate the graphics side of things
 	auto gui = Gui(&mpc);
