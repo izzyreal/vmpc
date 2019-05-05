@@ -1,35 +1,15 @@
 #include "PortAudioWrapper.hpp"
 
+#if AUDIO_LIBRARY == PORTAUDIO 
+
 #include <file/File.hpp>
 
 #include <rapidjson/document.h>
 
 PortAudioWrapper::PortAudioWrapper(PaStreamCallback* callback, void* callbackData, const string& filePath)
+	: AbstractAudioWrapper(callbackData, filePath)
 {
     this->callback = callback;
-	this->callbackData = callbackData;
-	this->filePath = filePath;
-	loadPreferences();
-}
-
-void PortAudioWrapper::loadPreferences() {
-	try {
-		ap = AudioPreferences(filePath);
-	}
-	catch (const SerializationException& e) {
-		const char* msg = e.what();
-		printf("%s\n", msg);
-		ap = AudioPreferences();
-	}
-}
-
-void PortAudioWrapper::storePreferences() {
-	moduru::file::File f(filePath, nullptr);
-	f.create();
-	f.openWrite();
-	for (auto c : ap.serialize())
-		f.writeByte(c);
-	f.close();
 }
 
 PortAudioWrapper::~PortAudioWrapper()
@@ -159,9 +139,4 @@ void PortAudioWrapper::stopAndCloseStream() {
     safeDestroy();
 }
 
-int PortAudioWrapper::getBufferSize() {
-	return ap.getBufferSize();
-}
-int PortAudioWrapper::getSampleRate() {
-	return ap.getSampleRate();
-}
+#endif AUDIO_LIBRARY == PORTAUDIO

@@ -28,6 +28,7 @@
 #include <portaudio.h>
 
 #include <audio/PortAudioWrapper.hpp>
+#include <audio/RtAudioWrapper.hpp>
 #include <audio/AudioPreferences.hpp>
 #include <audio/AudioWrapperConfig.hpp>
 
@@ -85,7 +86,11 @@ rtaudio_callback(
 	return 0;
 }
 
-#endif
+RtAudioWrapper instantiateAudioWrapper(CallbackData& data, const string& preferencesFilePath) {
+	return RtAudioWrapper(rtaudio_callback, (void*)&data, preferencesFilePath);
+}
+
+#endif AUDIO_LIBARY == RTAUDIO
 
 int main(int argc, char *argv[]) {
 	
@@ -100,8 +105,8 @@ int main(int argc, char *argv[]) {
 	fileAppender->setLayout(make_unique<TTCCLayout>());
 	logger.addAppender(fileAppender);
 
-    logger.setLogLevel(INFO_LOG_LEVEL);
-//    logger.setLogLevel(TRACE_LOG_LEVEL);
+//    logger.setLogLevel(INFO_LOG_LEVEL);
+    logger.setLogLevel(TRACE_LOG_LEVEL);
     
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Starting VMPC2000XL..."));
 

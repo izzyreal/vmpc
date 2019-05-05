@@ -37,8 +37,7 @@ void RtAudioWrapper::start() {
 	{ DriverType::ASIO, RtAudio::WINDOWS_ASIO },
 	{ DriverType::WASAPI, RtAudio::WINDOWS_WASAPI },
 	{ DriverType::DIRECTSOUND, RtAudio::WINDOWS_DS },
-	{ DriverType::CORE_AUDIO, RtAudio::MACOSX_CORE },
-	{ DriverType::PULSE_AUDIO, RtAudio::LINUX_PULSE }
+	{ DriverType::CORE_AUDIO, RtAudio::MACOSX_CORE }
 	};
 
 	audio = new RtAudio(apis[ap.getDriverType()]);

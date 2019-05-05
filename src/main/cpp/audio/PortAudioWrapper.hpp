@@ -5,7 +5,7 @@
 
 #include "portaudio.h"
 
-class PortAudioWrapper
+class PortAudioWrapper : public AbstractAudioWrapper
 {
 public:
 	PortAudioWrapper(PaStreamCallback* callback, void* callbackData, const string& filePath);
@@ -17,18 +17,10 @@ private:
     void logError(const PaError& e);
     
 public:
-	void start();
-	void storePreferences();
-	void loadPreferences();
-	int getBufferSize();
-	int getSampleRate();
+	void start() override;
 
-	log4cplus::Logger logger = log4cplus::Logger::getRoot();
 	PaStreamCallback* callback;
-	void* callbackData;
     PaStream* stream = nullptr;
-	AudioPreferences ap;
-	string filePath = "";
 };
 
 #endif
