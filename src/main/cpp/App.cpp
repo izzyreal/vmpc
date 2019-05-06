@@ -56,7 +56,7 @@ static int pa_callback(const void *inputBuffer, void *outputBuffer, unsigned lon
     return 0;
 }
 
-PortAudioWrapper instantiateAudioWrapper(CallbackData& data, const string& preferencesFilePath) {
+PortAudioWrapper instantiateAudioWrapper(CallbackData data, const string& preferencesFilePath) {
 
 	return PortAudioWrapper(pa_callback, (void*)&data, preferencesFilePath);
 }
@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
     Mpc mpc;
 	CallbackData callbackData{ &mpc };
 	auto audioWrapper = instantiateAudioWrapper(callbackData, preferencesFilePath);
+
 	mpc.init("rtaudio", audioWrapper.getSampleRate());
 	mpc.getLayeredScreen().lock()->openScreen("sequencer");
 	mpc.loadDemoBeat();
