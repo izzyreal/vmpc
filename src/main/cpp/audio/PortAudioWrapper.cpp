@@ -130,8 +130,7 @@ void PortAudioWrapper::start() {
 	if (maxOutputChannels >= 2) {
 		outParam->device = outputDevId;
 		// The MPC2000XL has only 10 mono output channels
-		//outParam->channelCount = maxOutputChannels > 10 ? 10 : maxOutputChannels;
-		outParam->channelCount = 2;
+		outParam->channelCount = maxOutputChannels > 10 ? 10 : maxOutputChannels;
 		outParam->hostApiSpecificStreamInfo = NULL;
 		outParam->sampleFormat = paFloat32;
 		outParam->suggestedLatency = Pa_GetDeviceInfo(outputDevId)->defaultLowOutputLatency;
