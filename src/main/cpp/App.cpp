@@ -53,7 +53,6 @@ static int pa_callback(const void *inputBuffer, void *outputBuffer, unsigned lon
 }
     
 int main(int argc, char *argv[]) {
-	
 	// First we set up the logger
 	const auto logFilePath = FileUtil::joinPath(mpc::StartUp::home, "vMPC", "vmpc2000xl.log");
 		
@@ -65,8 +64,8 @@ int main(int argc, char *argv[]) {
 	fileAppender->setLayout(make_unique<TTCCLayout>());
 	logger.addAppender(fileAppender);
 
-    logger.setLogLevel(INFO_LOG_LEVEL);
-//    logger.setLogLevel(TRACE_LOG_LEVEL);
+	logger.setLogLevel(INFO_LOG_LEVEL);
+	//logger.setLogLevel(TRACE_LOG_LEVEL);
     
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Starting VMPC2000XL..."));
 
@@ -85,7 +84,7 @@ int main(int argc, char *argv[]) {
 	mpc.getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(portAudioWrapper.getBufferSize());
 	
 	// Now portaudio can start its callbacks
-    portAudioWrapper.start();
+	portAudioWrapper.start();
 
 	// With the audio engine running, we instantiate the graphics side of things
 	auto gui = Gui(&mpc);
@@ -95,6 +94,5 @@ int main(int argc, char *argv[]) {
 	
 	// If the GUI loop has stopped, we try to clean up after ourselves	
 	gui.destroySDL();
-
 	return 0;
 }

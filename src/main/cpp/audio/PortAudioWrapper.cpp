@@ -59,11 +59,34 @@ void PortAudioWrapper::start() {
         { DriverType::CORE_AUDIO, paCoreAudio }
 	};
 
-	//audio = new RtAudio(apis[ap.getDriverType()]);
-    Pa_Initialize();
-    auto info = Pa_GetHostApiInfo(Pa_HostApiTypeIdToHostApiIndex(apis[ap.getDriverType()]));
-	unsigned int bufSize = ap.getBufferSize();
+	const auto error = Pa_Initialize();
+
+	if (error) {
+		const auto msg = Pa_GetErrorText(error);
+		LOG4CPLUS_ERROR(logger, msg);
+	}
 	
+	const auto paApiTypeId = apis[ap.getDriverType()];
+	
+	LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("driverType : ") << (int)ap.getDriverType());
+	LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("paApiTypeId : ") << (int) paApiTypeId);
+	
+	const PaHostApiIndex hostApiIndex = Pa_HostApiTypeIdToHostApiIndex(paDirectSound);
+	
+	if (hostApiIndex < 0) {
+		const auto msg = Pa_GetErrorText(hostApiIndex);
+		LOG4CPLUS_ERROR(logger, msg);
+	}
+
+	LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("hostApiIndex : ") << (int)hostApiIndex);
+
+	const auto info = Pa_GetHostApiInfo(hostApiIndex);
+	if (info == NULL) {
+		LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("api info is NULL!"));
+	}
+	
+	unsigned int bufSize = ap.getBufferSize();
+
 	// We start off with an input device ID that always works
 	auto inputDevId = info->defaultInputDevice;
 
@@ -78,8 +101,11 @@ void PortAudioWrapper::start() {
 		}
 	}
 
-	if (ap.getInputDevName().compare("") == 0 || !inputNameFound)
+	if (ap.getInputDevName().compare("") == 0 || !inputNameFound) {
+		LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("info defaultInputDevice : ") << (int)info->defaultInputDevice);
+		auto candidate = Pa_GetDeviceInfo(info->defaultInputDevice);
 		ap.setInputDevName(Pa_GetDeviceInfo(info->defaultInputDevice)->name);
+	}
 
 	// Same for output device ID
     auto outputDevId = info->defaultOutputDevice;
@@ -97,8 +123,7 @@ void PortAudioWrapper::start() {
     if (ap.getOutputDevName().compare("") == 0 || !outputNameFound)
         ap.setOutputDevName(Pa_GetDeviceInfo(info->defaultOutputDevice)->name);
 
-    
-    /* Now we're ready to set up some streams */
+    // Now we're ready to set up some streams
     
     auto inParam = new PaStreamParameters();
 
@@ -122,12 +147,13 @@ void PortAudioWrapper::start() {
     const auto maxOutputChannels = outputDevInfo->maxOutputChannels;
     LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("pa output dev max channels : ") << (int)maxOutputChannels);
 
-    auto outParam = new PaStreamParameters();
+	auto outParam = new PaStreamParameters();
 
 	if (maxOutputChannels >= 2) {
 		outParam->device = outputDevId;
 		// The MPC2000XL has only 10 mono output channels
-		outParam->channelCount = maxOutputChannels > 10 ? 10 : maxOutputChannels;
+		//outParam->channelCount = maxOutputChannels > 10 ? 10 : maxOutputChannels;
+		outParam->channelCount = 2;
         outParam->hostApiSpecificStreamInfo = NULL;
         outParam->sampleFormat = paFloat32;
         outParam->suggestedLatency = Pa_GetDeviceInfo(outputDevId)->defaultLowOutputLatency;
@@ -143,8 +169,9 @@ void PortAudioWrapper::start() {
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening portaudio stream..."));
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Sample rate: ") << sampleRate);
         LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size: ") << bufSize);
-        logError(Pa_OpenStream(&stream, inParam, outParam, sampleRate, bufSize, paNoFlag, callback, callbackData));
-        logError(Pa_StartStream(stream));
+        //logError(Pa_OpenStream(&stream, inParam, outParam, sampleRate, bufSize, paNoFlag, callback, callbackData));
+		logError(Pa_OpenStream(&stream, nullptr, outParam, sampleRate, bufSize, paNoFlag, callback, callbackData));
+		logError(Pa_StartStream(stream));
 	}
 }
 
