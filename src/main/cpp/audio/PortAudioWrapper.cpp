@@ -133,7 +133,7 @@ void PortAudioWrapper::start() {
 		outParam->channelCount = maxOutputChannels > 10 ? 10 : maxOutputChannels;
 		outParam->hostApiSpecificStreamInfo = NULL;
 		outParam->sampleFormat = paFloat32;
-		outParam->suggestedLatency = Pa_GetDeviceInfo(outputDevId)->defaultLowOutputLatency;
+		outParam->suggestedLatency = 0.001;
 	}
 	else {
 		// If we don't have enough mono output channels available, we don't bother setting up an output stream
@@ -146,8 +146,7 @@ void PortAudioWrapper::start() {
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening portaudio stream..."));
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Sample rate: ") << sampleRate);
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size: ") << bufSize);
-		//logError(Pa_OpenStream(&stream, inParam, outParam, sampleRate, bufSize, paNoFlag, callback, callbackData));
-		logError(Pa_OpenStream(&stream, nullptr, outParam, sampleRate, bufSize, paNoFlag, callback, callbackData));
+		logError(Pa_OpenStream(&stream, inParam, outParam, sampleRate, bufSize, paNoFlag, callback, callbackData));
 		logError(Pa_StartStream(stream));
 	}
 }
