@@ -19,9 +19,11 @@ void SvgComponent::draw(cairo_t* context, bool dirtyOnly) {
 		auto logger = log4cplus::Logger::getRoot();
 		LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("Drawing SvgComponent ") << LOG4CPLUS_STRING_TO_TSTRING(name));
 
-		prepare(context);
+		prepareClip(context);
+		prepareTranslate(context);
 		svgRenderFunc(context);
-		restore(context);
+		restoreTranslate(context);
+		restoreClip(context);
 		dirty = false;
 	}
 

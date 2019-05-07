@@ -27,18 +27,26 @@ bool Component::isDirty() {
 	return dirty;
 }
 
-void Component::prepare(cairo_t* context) {
-	auto l = static_cast<double>(r.L);
-	auto t = static_cast<double>(r.T);
-	cairo_rectangle(context, l, t, static_cast<double>(r.W()), static_cast<double>(r.H()));
-	cairo_clip(context);
+void Component::prepareTranslate(cairo_t* context) {
+	const auto l = static_cast<double>(r.L);
+	const auto t = static_cast<double>(r.T);
 	cairo_translate(context, l, t);
 }
 
-void Component::restore(cairo_t* context) {
+void Component::restoreTranslate(cairo_t* context) {
 	auto l = static_cast<double>(r.L);
 	auto t = static_cast<double>(r.T);
 	cairo_translate(context, -l, -t);
+}
+
+void Component::prepareClip(cairo_t* context) {
+	const auto l = static_cast<double>(r.L);
+	const auto t = static_cast<double>(r.T);
+	cairo_rectangle(context, l, t, static_cast<double>(r.W()), static_cast<double>(r.H()));
+	cairo_clip(context);
+}
+
+void Component::restoreClip(cairo_t* context) {
 	cairo_reset_clip(context);
 }
 
@@ -47,7 +55,7 @@ bool Component::contains(const int x, const int y) {
 }
 
 void Component::draw(cairo_t* context, bool dirtyOnly) {
-	for (int i = children.size() - 1; i >= 0; i--) {
+	for (int i = 0; i < children.size(); i++) {
 		children[i]->draw(context, dirtyOnly);
 	}
 }

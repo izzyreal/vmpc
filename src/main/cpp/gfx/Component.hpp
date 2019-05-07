@@ -24,8 +24,10 @@ public:
 	Component(const MRECT&, const string& name);
 
 protected:
-	void prepare(cairo_t* context);
-	void restore(cairo_t* context);
+	void prepareTranslate(cairo_t* context);
+	void prepareClip(cairo_t* context);
+	void restoreTranslate(cairo_t* context);
+	void restoreClip(cairo_t* context);
 
 public:
 	virtual void draw(cairo_t* context, bool dirtyOnly);
