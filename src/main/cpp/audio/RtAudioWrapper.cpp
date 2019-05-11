@@ -100,11 +100,10 @@ void RtAudioWrapper::start() {
 			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Input dev name  : ") << LOG4CPLUS_C_STR_TO_TSTRING(audio->getDeviceInfo(inParam->deviceId).name));
 		}
 
-		//RtAudio::StreamOptions options;
-		//options.numberOfBuffers = 1;
-		//options.priority = RTAUDIO_SCHEDULE_REALTIME;
-		//audio->openStream(validOutParam ? &outParam : nullptr, validInParam ? &inParam : nullptr, audioFormat, sampleRate, &bufSize, callback, callbackData);
-		audio->openStream(outParam.get(), inParam.get(), audioFormat, sampleRate, &bufSize, callback, callbackData);
+		RtAudio::StreamOptions options;
+		options.numberOfBuffers = 1;
+		options.priority = RTAUDIO_SCHEDULE_REALTIME;
+		audio->openStream(outParam.get(), inParam.get(), audioFormat, sampleRate, &bufSize, callback, callbackData, &options);
 		audio->startStream();
 	}
 }
@@ -126,7 +125,7 @@ void RtAudioWrapper::stop() {
 		LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error while stopping RtAudioStream"));
 		LOG4CPLUS_ERROR_STR(logger, LOG4CPLUS_STRING_TO_TSTRING(msg));
 	}
-	/*
+
 	try {
 		// Close the stream
 		if (audio->isStreamOpen()) {
@@ -148,7 +147,6 @@ void RtAudioWrapper::stop() {
 		LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error while closing RtAudioStream"));
 		LOG4CPLUS_ERROR_STR(logger, LOG4CPLUS_STRING_TO_TSTRING(msg));
 	}
-	*/
 }
 
 const int RtAudioWrapper::getInputCount() {

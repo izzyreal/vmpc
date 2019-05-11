@@ -108,8 +108,8 @@ int main(int argc, char *argv[]) {
 	fileAppender->setLayout(make_unique<TTCCLayout>());
 	logger.addAppender(fileAppender);
 
-//    logger.setLogLevel(INFO_LOG_LEVEL);
-    logger.setLogLevel(TRACE_LOG_LEVEL);
+    logger.setLogLevel(INFO_LOG_LEVEL);
+    //logger.setLogLevel(TRACE_LOG_LEVEL);
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("\n"));
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("======================"));
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Starting VMPC2000XL..."));
