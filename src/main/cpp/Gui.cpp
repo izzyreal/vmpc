@@ -56,7 +56,13 @@ Gui::Gui(mpc::Mpc* mpc)
 
 	auto pixels = mpc->getLayeredScreen().lock()->getPixels();
 
-	auto lcd = make_shared<Lcd>(MRECT(0, 0, 248, 60), pixels, "lcd");
+	float lcdBgColor[3] = { 0.8f, 0.8f, 0.9f };
+	float lcdFgColor[3] = { 0.1f, 0.2f, 0.15f };
+	const int lcdX = 140;
+	const int lcdY = 67;
+	const int lcdR = lcdX + 248;
+	const int lcdB = lcdY + 60;
+	auto lcd = make_shared<Lcd>(MRECT(lcdX, lcdY, lcdR, lcdB), lcdBgColor, lcdFgColor, pixels, "lcd");
 	mpc->getLayeredScreen().lock()->Draw();
 	rootComponent->addChild(lcd);
 	initBackground();
