@@ -13,6 +13,7 @@ AbstractAudioWrapper::AbstractAudioWrapper(void* callbackData, const string& fil
 }
 
 void AbstractAudioWrapper::loadPreferences() {
+	LOG4CPLUS_INFO_STR(logger, LOG4CPLUS_STRING_TO_TSTRING("Trying to load audio preferences from " + filePath + "..."));
 	try {
 		ap = AudioPreferences(filePath);
 	}
@@ -34,9 +35,6 @@ void AbstractAudioWrapper::storePreferences() {
 
 AbstractAudioWrapper::~AbstractAudioWrapper()
 {
-	storePreferences();
-// Is there a way to call safeDestroy() from this class's destructor?
-//	safeDestroy();
 }
 
 int AbstractAudioWrapper::getBufferSize() {

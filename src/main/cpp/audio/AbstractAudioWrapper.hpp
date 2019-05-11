@@ -11,12 +11,11 @@ protected:
 	AbstractAudioWrapper(void* callbackData, const string& filePath);
 	~AbstractAudioWrapper();
 
-protected:
-	virtual void stopAndCloseStream() = 0;
-	virtual void safeDestroy() = 0;
-
 public:
 	virtual void start() = 0;
+	virtual void stop() {}
+	virtual const int getInputCount() { return 0; }
+	virtual const int getStereoOutputCount() { return 0; }
 
 public:
 	void storePreferences();
@@ -25,7 +24,7 @@ public:
 	int getSampleRate();
 
 protected:
-	log4cplus::Logger logger = log4cplus::Logger::getRoot();
+	const log4cplus::Logger logger = log4cplus::Logger::getRoot();
 	void* callbackData;
 	AudioPreferences ap;
 	string filePath = "";

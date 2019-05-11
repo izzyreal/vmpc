@@ -9,6 +9,8 @@
 
 #include <Serializable.hpp>
 
+#include <log4cplus/log4cplus.h>
+
 #include <string>
 #include <map>
 
@@ -70,6 +72,10 @@ public:
 	const unsigned short getBufferSize();
 	const unsigned short getSampleRate();
 	const DriverType& getDriverType();
+	
+private:
+	//const log4cplus::Logger logger = log4cplus::Logger::getRoot();
+
 };
 
 #endif

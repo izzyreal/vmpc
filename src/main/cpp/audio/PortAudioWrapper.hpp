@@ -12,8 +12,6 @@ public:
 	~PortAudioWrapper();
 
 protected:
-	void stopAndCloseStream() override;
-	void safeDestroy() override;
 	void logError(const PaError& e);
 
 public:

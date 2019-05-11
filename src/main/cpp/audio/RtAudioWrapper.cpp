@@ -6,6 +6,8 @@
 
 #include <rapidjson/document.h>
 
+#include <System.hpp>
+
 RtAudioWrapper::RtAudioWrapper(const RtAudioCallback& callback, void* callbackData, const string& filePath)
 	: AbstractAudioWrapper(callbackData, filePath)
 {
@@ -14,24 +16,9 @@ RtAudioWrapper::RtAudioWrapper(const RtAudioCallback& callback, void* callbackDa
 
 RtAudioWrapper::~RtAudioWrapper()
 {
-	safeDestroy();
-}
-
-void RtAudioWrapper::safeDestroy() {
-	if (audio != nullptr) {
-		if (audio->isStreamRunning()) {
-			audio->stopStream();
-		}
-		if (audio->isStreamOpen()) {
-			audio->closeStream();
-		}
-		delete audio;
-	}
 }
 
 void RtAudioWrapper::start() {
-
-	safeDestroy();
 
 	map<DriverType, RtAudio::Api> apis = {
 	{ DriverType::ASIO, RtAudio::WINDOWS_ASIO },
@@ -40,7 +27,7 @@ void RtAudioWrapper::start() {
 	{ DriverType::CORE_AUDIO, RtAudio::MACOSX_CORE }
 	};
 
-	audio = new RtAudio(apis[ap.getDriverType()]);
+	audio = make_shared<RtAudio>(apis[ap.getDriverType()]);
 
 	unsigned int bufSize = ap.getBufferSize();
 	
@@ -78,50 +65,105 @@ void RtAudioWrapper::start() {
 	const auto inputDevInfo = audio->getDeviceInfo(inputDevId);
 	const auto maxInputChannels = inputDevInfo.inputChannels;
 
-	auto inParam = new RtAudio::StreamParameters();
+	bool validInParam = true;
 
 	if (maxInputChannels >= 2) {
-		inParam->deviceId = inputDevId;
+		inParam.deviceId = inputDevId;
 		// The MPC2000XL has only 2 mono input channels
-		inParam->nChannels = maxInputChannels > 2 ? 2 : maxInputChannels;
+		inParam.nChannels = maxInputChannels > 2 ? 2 : maxInputChannels;
 	}
 	else {
 		// If we don't have enough mono input channels available, we don't bother setting up an input stream
-		inParam = nullptr;
+		validInParam = false;
 	}
 
 	const auto outputDevInfo = audio->getDeviceInfo(outputDevId);
 	const auto maxOutputChannels = outputDevInfo.outputChannels;
 
-	auto outParam = new RtAudio::StreamParameters();
+	bool validOutParam = true;
 
 	if (maxOutputChannels >= 2) {
-		outParam->deviceId = outputDevId;
+		outParam.deviceId = outputDevId;
 		// The MPC2000XL has only 10 mono output channels
-		outParam->nChannels = maxOutputChannels > 10 ? 10 : maxOutputChannels;
+		outParam.nChannels = maxOutputChannels > 10 ? 10 : maxOutputChannels;
 	}
 	else {
 		// If we don't have enough mono output channels available or sr is unsupported, we don't bother setting up an output stream
-		outParam = nullptr;
+		validOutParam = false;
 	}
 
 	// A stream is only opened and started if there is at least a valid output device established
-	if (outParam != nullptr) {
+	if (validOutParam) {
 		const auto sampleRate = ap.getSampleRate();
 		const auto audioFormat = RTAUDIO_FLOAT32;
-		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening RtAudio stream with:"));
-		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size: ") << bufSize);
-		RtAudio::StreamOptions options;
-		options.numberOfBuffers = 1;
-		options.priority = RTAUDIO_SCHEDULE_REALTIME;
-		audio->openStream(outParam, inParam, audioFormat, sampleRate, &bufSize, callback, callbackData, &options);
+		
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening RtAudio stream..."));
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size     : ") << bufSize);
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Output dev id   : ") << outParam.deviceId);
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Output dev name : ") << LOG4CPLUS_C_STR_TO_TSTRING(audio->getDeviceInfo(outParam.deviceId).name));
+
+		if (validInParam) {
+			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Input dev id    : ") << inParam.deviceId);
+			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Input dev name  : ") << LOG4CPLUS_C_STR_TO_TSTRING(audio->getDeviceInfo(inParam.deviceId).name));
+		}
+
+		//RtAudio::StreamOptions options;
+		//options.numberOfBuffers = 1;
+		//options.priority = RTAUDIO_SCHEDULE_REALTIME;
+		//audio->openStream(validOutParam ? &outParam : nullptr, validInParam ? &inParam : nullptr, audioFormat, sampleRate, &bufSize, callback, callbackData);
+		audio->openStream(validOutParam ? &outParam : nullptr, nullptr, audioFormat, sampleRate, &bufSize, callback, callbackData);
 		audio->startStream();
 	}
 }
 
-void RtAudioWrapper::stopAndCloseStream() {
-	audio->stopStream();
-	audio->closeStream();
+void RtAudioWrapper::stop() {
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Stopping RtAudioWrapper..."));
+	try {
+		// Stop the stream
+		if (audio->isStreamRunning()) {
+			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Trying to stop RtAudioStream..."));
+			audio->stopStream();
+			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("RtAudioStream stopped"));
+		} else {
+			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("RtAudioStream is not running, nothing to stop"));
+		}
+	}
+	catch (const RtAudioError &error) {
+		auto msg = error.getMessage();
+		LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error while stopping RtAudioStream"));
+		LOG4CPLUS_ERROR_STR(logger, LOG4CPLUS_STRING_TO_TSTRING(msg));
+	}
+	/*
+	try {
+		// Close the stream
+		if (audio->isStreamOpen()) {
+			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Trying to close RtAudioStream..."));
+			audio->closeStream();
+			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("RtAudioStream closed"));
+		}
+		else {
+			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("RtAudioStream is not open, nothing to close"));
+		}
+	}
+	catch (const std::exception& error) {
+		auto msg = error.what();
+		LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error while closing RtAudioStream"));
+		LOG4CPLUS_ERROR_STR(logger, LOG4CPLUS_STRING_TO_TSTRING(msg));
+	}
+	catch (const RtAudioError &error) {
+		auto msg = error.getMessage();
+		LOG4CPLUS_ERROR(logger, LOG4CPLUS_TEXT("Error while closing RtAudioStream"));
+		LOG4CPLUS_ERROR_STR(logger, LOG4CPLUS_STRING_TO_TSTRING(msg));
+	}
+	*/
+}
+
+const int RtAudioWrapper::getInputCount() {
+	return 0;
+}
+
+const int RtAudioWrapper::getStereoOutputCount() {
+	return 1;
 }
 
 #endif

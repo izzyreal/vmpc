@@ -30,7 +30,12 @@ AudioPreferences::AudioPreferences(const string& inputDevName, const string& out
 
 AudioPreferences::AudioPreferences(const string& filePath) {
 	FILE* fp = fopen(filePath.c_str(), "r"); // non-Windows use "r"
-	if (!fp) return;
+	if (!fp) {
+		//LOG4CPLUS_INFO_STR(logger, LOG4CPLUS_STRING_TO_TSTRING("Preferences file can't be found at " + filePath));
+		//LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("AudioPreferences will be instantiated using default settings"));
+		return;
+	}
+
 	char readBuffer[4096];
 	FileReadStream is(fp, readBuffer, sizeof(readBuffer));
 	Document d;
@@ -90,6 +95,8 @@ AudioPreferences::AudioPreferences(const string& filePath) {
 	bufferSize = d["bufferSize"].GetUint();
 	inputDevName = d["inputDevName"].GetString();
 	outputDevName = d["outputDevName"].GetString();
+
+	//LOG4CPLUS_INFO_STR(logger, LOG4CPLUS_STRING_TO_TSTRING("AudioPreferences have been instantiated based on " + filePath));
 }
 
 AudioPreferences::AudioPreferences() : AudioPreferences("", "") {

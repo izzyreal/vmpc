@@ -12,10 +12,9 @@ PortAudioWrapper::PortAudioWrapper(PaStreamCallback* callback, void* callbackDat
 
 PortAudioWrapper::~PortAudioWrapper()
 {
-	storePreferences();
-	safeDestroy();
 }
 
+/*
 void PortAudioWrapper::safeDestroy() {
 	if (stream != nullptr) {
 		if (!Pa_IsStreamStopped(stream)) {
@@ -25,10 +24,11 @@ void PortAudioWrapper::safeDestroy() {
 		stream = nullptr;
 	}
 }
+*/
 
 void PortAudioWrapper::start() {
 
-	safeDestroy();
+	//safeDestroy();
 
 	map<DriverType, PaHostApiTypeId> apis = {
 		{ DriverType::ASIO, paASIO },
@@ -157,10 +157,4 @@ void PortAudioWrapper::logError(const PaError &e) {
 		auto msg = Pa_GetErrorText(e);
 		LOG4CPLUS_ERROR_STR(logger, LOG4CPLUS_STRING_TO_TSTRING(msg));
 	}
-}
-
-void PortAudioWrapper::stopAndCloseStream() {
-	//    audio->stopStream();
-	//    audio->closeStream();
-	safeDestroy();
 }

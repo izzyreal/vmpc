@@ -76,13 +76,16 @@ rtaudio_callback(
 {
 	float* outbufFloat = (float*)outbuf;
 	float* inbufFloat = (float*)inbuf;
-	unsigned int remainFrames;
 
 	auto callbackData = (CallbackData*)userData;
 	auto as = callbackData->mpc->getAudioMidiServices().lock()->getExternalAudioServer();
 	if (as == nullptr) return 0;
+	auto logger = log4cplus::Logger::getRoot();
+	LOG4CPLUS_TRACE(logger, LOG4CPLUS_TEXT("RtAudio callback nFrames : ") << nFrames);
 	auto bufSize = as->getBufferSize();
-	as->work(inbufFloat, outbufFloat, bufSize, 2, 5);
+	const auto asInputCount = as->getActiveInputs().size() * 2;
+	const auto asOutputCount = as->getActiveOutputs().size() * 2;
+	as->work(inbufFloat, outbufFloat, bufSize, asInputCount, asOutputCount);
 	return 0;
 }
 
@@ -105,10 +108,12 @@ int main(int argc, char *argv[]) {
 	fileAppender->setLayout(make_unique<TTCCLayout>());
 	logger.addAppender(fileAppender);
 
-    logger.setLogLevel(INFO_LOG_LEVEL);
-//    logger.setLogLevel(TRACE_LOG_LEVEL);
-    
+//    logger.setLogLevel(INFO_LOG_LEVEL);
+    logger.setLogLevel(TRACE_LOG_LEVEL);
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("\n"));
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("======================"));
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Starting VMPC2000XL..."));
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("======================"));
 
 	// Then we set up the audio server
 	const auto preferencesFilePath = FileUtil::joinPath(mpc::StartUp::home, "vMPC", "audio_preferences.json");
@@ -118,10 +123,12 @@ int main(int argc, char *argv[]) {
 	CallbackData callbackData{ &mpc };
 	auto audioWrapper = instantiateAudioWrapper(callbackData, preferencesFilePath);
 
-	mpc.init("rtaudio", audioWrapper.getSampleRate());
+	const auto inputCount = audioWrapper.getInputCount();
+	const auto outputCount = audioWrapper.getStereoOutputCount();
+
+	mpc.init(audioWrapper.getSampleRate(), inputCount, outputCount);
 	mpc.getLayeredScreen().lock()->openScreen("sequencer");
 	mpc.loadDemoBeat();
-
 	// We make the MPC audio engine aware of the buffer size
 	mpc.getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(audioWrapper.getBufferSize());
 	
@@ -133,9 +140,18 @@ int main(int argc, char *argv[]) {
 	gui.initSDL();
     gui.setUserScale(1.0f);
 	gui.startLoop();
+
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Shutting down VMPC2000XL..."));
+
+	// If the GUI loop has stopped, we try to clean up after ourselves
+
+	audioWrapper.storePreferences();
+
+	mpc.getAudioMidiServices().lock()->getExternalAudioServer()->stop();
+
+	audioWrapper.stop();
 	
-	// If the GUI loop has stopped, we try to clean up after ourselves	
-	gui.destroySDL();
+	//gui.destroySDL();
 
 	return 0;
 }
