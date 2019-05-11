@@ -2,6 +2,8 @@
 
 #include "gfx/SvgComponent.hpp"
 #include "gfx/Panel.hpp"
+#include "gfx/Label.hpp"
+#include "gfx/Lcd.hpp"
 
 #include <Mpc.hpp>
 #include <hardware/Hardware.hpp>
@@ -15,7 +17,9 @@
 Gui::Gui(mpc::Mpc* mpc)
 {
 	this->mpc = mpc;
-    rootComponent = make_shared<SvgComponent>(MRECT(0,0,cairo_code_mpc2_get_width(),cairo_code_mpc2_get_height()), "bg", cairo_code_mpc2_render);
+	const auto width = cairo_code_mpc2_get_width();
+	const auto height = cairo_code_mpc2_get_height();
+    rootComponent = make_shared<SvgComponent>(MRECT(0, 0, width, height), "bg", cairo_code_mpc2_render);
 	
 	const int padX = 548;
 	const int padY = 285;
@@ -36,8 +40,25 @@ Gui::Gui(mpc::Mpc* mpc)
 		}
 	}
 
-	rootComponent->addChild(make_shared<Panel>(MRECT(0, 0, 700, 700), "audio-preferences-panel"));
+	const int panelWidth = 400;
+	const int panelHeight = 400;
 
+	const int panelX = (width - panelWidth) / 2;
+	const int panelY = (height - panelHeight) / 2;
+
+	auto panel = make_shared<Panel>(MRECT(panelX, panelY, panelX + panelWidth, panelY + panelHeight), "audio-preferences-panel");
+	
+	auto labelRect = MRECT(panelX, panelY, panelX + 200, panelY + 50);
+	float labelColor[3] = { 0.0f, 0.0f, 0.0f };
+	auto label = make_shared<Label>(labelRect, labelColor, "driver-type-label", "Driver type:");
+	panel->addChild(label);
+	//rootComponent->addChild(panel);
+
+	auto pixels = mpc->getLayeredScreen().lock()->getPixels();
+
+	auto lcd = make_shared<Lcd>(MRECT(0, 0, 248, 60), pixels, "lcd");
+	mpc->getLayeredScreen().lock()->Draw();
+	rootComponent->addChild(lcd);
 	initBackground();
 }
 
