@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
 
 	audioWrapper.stop();
 	
-	//gui.destroySDL();
+	gui.destroySDL();
 
 	return 0;
 }
