@@ -12,6 +12,7 @@ protected:
 	~AbstractAudioWrapper();
 
 public:
+	virtual void prepare() = 0;
 	virtual void start() = 0;
 	virtual void stop() {}
 	virtual const int getInputCount() { return 0; }

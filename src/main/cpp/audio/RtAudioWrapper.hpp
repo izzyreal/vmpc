@@ -15,6 +15,7 @@ public:
 	~RtAudioWrapper();
 
 public:
+	void prepare() override;
 	void start() override;
 	void stop() override;
 
@@ -24,8 +25,8 @@ public:
 private:
 	RtAudioCallback callback;
 	shared_ptr<RtAudio> audio;
-	RtAudio::StreamParameters inParam;
-	RtAudio::StreamParameters outParam;
+	shared_ptr<RtAudio::StreamParameters> inParam;
+	shared_ptr<RtAudio::StreamParameters> outParam;
 
 };
 #endif

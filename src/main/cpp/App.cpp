@@ -121,12 +121,15 @@ int main(int argc, char *argv[]) {
 	// and instantiate the MPC
     Mpc mpc;
 	CallbackData callbackData{ &mpc };
+
 	auto audioWrapper = instantiateAudioWrapper(callbackData, preferencesFilePath);
+
+	audioWrapper.prepare();
 
 	const auto inputCount = audioWrapper.getInputCount();
 	const auto outputCount = audioWrapper.getStereoOutputCount();
 
-	mpc.init(audioWrapper.getSampleRate(), inputCount, outputCount);
+	mpc.init(audioWrapper.getSampleRate(), inputCount / 2, outputCount / 2);
 	mpc.getLayeredScreen().lock()->openScreen("sequencer");
 	mpc.loadDemoBeat();
 	// We make the MPC audio engine aware of the buffer size

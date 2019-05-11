@@ -18,7 +18,7 @@ RtAudioWrapper::~RtAudioWrapper()
 {
 }
 
-void RtAudioWrapper::start() {
+void RtAudioWrapper::prepare() {
 
 	map<DriverType, RtAudio::Api> apis = {
 	{ DriverType::ASIO, RtAudio::WINDOWS_ASIO },
@@ -28,8 +28,6 @@ void RtAudioWrapper::start() {
 	};
 
 	audio = make_shared<RtAudio>(apis[ap.getDriverType()]);
-
-	unsigned int bufSize = ap.getBufferSize();
 	
 	// We start off with an input device ID that always works
 	auto inputDevId = audio->getDefaultInputDevice();
@@ -65,53 +63,48 @@ void RtAudioWrapper::start() {
 	const auto inputDevInfo = audio->getDeviceInfo(inputDevId);
 	const auto maxInputChannels = inputDevInfo.inputChannels;
 
-	bool validInParam = true;
-
 	if (maxInputChannels >= 2) {
-		inParam.deviceId = inputDevId;
+		inParam = make_shared<RtAudio::StreamParameters>();
+		inParam->deviceId = inputDevId;
 		// The MPC2000XL has only 2 mono input channels
-		inParam.nChannels = maxInputChannels > 2 ? 2 : maxInputChannels;
-	}
-	else {
-		// If we don't have enough mono input channels available, we don't bother setting up an input stream
-		validInParam = false;
+		inParam->nChannels = maxInputChannels > 2 ? 2 : maxInputChannels;
 	}
 
 	const auto outputDevInfo = audio->getDeviceInfo(outputDevId);
 	const auto maxOutputChannels = outputDevInfo.outputChannels;
 
-	bool validOutParam = true;
-
 	if (maxOutputChannels >= 2) {
-		outParam.deviceId = outputDevId;
+		outParam = make_shared<RtAudio::StreamParameters>();
+		outParam->deviceId = outputDevId;
 		// The MPC2000XL has only 10 mono output channels
-		outParam.nChannels = maxOutputChannels > 10 ? 10 : maxOutputChannels;
+		outParam->nChannels = maxOutputChannels > 10 ? 10 : maxOutputChannels;
 	}
-	else {
-		// If we don't have enough mono output channels available or sr is unsupported, we don't bother setting up an output stream
-		validOutParam = false;
-	}
+}
+
+void RtAudioWrapper::start() {
+
+	unsigned int bufSize = ap.getBufferSize();
 
 	// A stream is only opened and started if there is at least a valid output device established
-	if (validOutParam) {
+	if (outParam) {
 		const auto sampleRate = ap.getSampleRate();
 		const auto audioFormat = RTAUDIO_FLOAT32;
-		
+
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Opening RtAudio stream..."));
 		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Buffer size     : ") << bufSize);
-		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Output dev id   : ") << outParam.deviceId);
-		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Output dev name : ") << LOG4CPLUS_C_STR_TO_TSTRING(audio->getDeviceInfo(outParam.deviceId).name));
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Output dev id   : ") << outParam->deviceId);
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Output dev name : ") << LOG4CPLUS_C_STR_TO_TSTRING(audio->getDeviceInfo(outParam->deviceId).name));
 
-		if (validInParam) {
-			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Input dev id    : ") << inParam.deviceId);
-			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Input dev name  : ") << LOG4CPLUS_C_STR_TO_TSTRING(audio->getDeviceInfo(inParam.deviceId).name));
+		if (inParam) {
+			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Input dev id    : ") << inParam->deviceId);
+			LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Input dev name  : ") << LOG4CPLUS_C_STR_TO_TSTRING(audio->getDeviceInfo(inParam->deviceId).name));
 		}
 
 		//RtAudio::StreamOptions options;
 		//options.numberOfBuffers = 1;
 		//options.priority = RTAUDIO_SCHEDULE_REALTIME;
 		//audio->openStream(validOutParam ? &outParam : nullptr, validInParam ? &inParam : nullptr, audioFormat, sampleRate, &bufSize, callback, callbackData);
-		audio->openStream(validOutParam ? &outParam : nullptr, nullptr, audioFormat, sampleRate, &bufSize, callback, callbackData);
+		audio->openStream(outParam.get(), inParam.get(), audioFormat, sampleRate, &bufSize, callback, callbackData);
 		audio->startStream();
 	}
 }
@@ -159,11 +152,17 @@ void RtAudioWrapper::stop() {
 }
 
 const int RtAudioWrapper::getInputCount() {
+	if (inParam) {
+		return inParam->nChannels;
+	}
 	return 0;
 }
 
 const int RtAudioWrapper::getStereoOutputCount() {
-	return 1;
+	if (outParam) {
+		return outParam->nChannels;
+	}
+	return 0;
 }
 
 #endif
