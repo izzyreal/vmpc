@@ -74,7 +74,7 @@ public:
 	const DriverType& getDriverType();
 	
 private:
-	//const log4cplus::Logger logger = log4cplus::Logger::getRoot();
+	log4cplus::Logger logger = log4cplus::Logger::getRoot();
 
 };
 

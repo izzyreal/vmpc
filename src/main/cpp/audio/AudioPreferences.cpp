@@ -31,8 +31,8 @@ AudioPreferences::AudioPreferences(const string& inputDevName, const string& out
 AudioPreferences::AudioPreferences(const string& filePath) {
 	FILE* fp = fopen(filePath.c_str(), "r"); // non-Windows use "r"
 	if (!fp) {
-		//LOG4CPLUS_INFO_STR(logger, LOG4CPLUS_STRING_TO_TSTRING("Preferences file can't be found at " + filePath));
-		//LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("AudioPreferences will be instantiated using default settings"));
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_STRING_TO_TSTRING("Preferences file can't be found at " + filePath));
+		LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Default AudioPreferences will be used"));
 		return;
 	}
 
@@ -96,7 +96,7 @@ AudioPreferences::AudioPreferences(const string& filePath) {
 	inputDevName = d["inputDevName"].GetString();
 	outputDevName = d["outputDevName"].GetString();
 
-	//LOG4CPLUS_INFO_STR(logger, LOG4CPLUS_STRING_TO_TSTRING("AudioPreferences have been instantiated based on " + filePath));
+	LOG4CPLUS_INFO_STR(logger, LOG4CPLUS_STRING_TO_TSTRING("Successfully loaded audio preferences from " + filePath));
 }
 
 AudioPreferences::AudioPreferences() : AudioPreferences("", "") {
