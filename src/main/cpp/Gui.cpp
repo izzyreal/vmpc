@@ -9,6 +9,7 @@
 #include <hardware/Hardware.hpp>
 #include <hardware/HwPad.hpp>
 #include <hardware/Button.hpp>
+#include <hardware/DataWheel.hpp>
 
 #include "mpc2.h"
 #include "pad.h"
@@ -151,9 +152,34 @@ void Gui::setUserScale(const float& userScale) {
 /* keyboard handler */
 
 void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
-    switch(event.keysym.sym ){
+	auto hw = mpc->getHardware().lock();
+    switch(event.keysym.sym){
+		case SDLK_F1:
+			hw->getButton("f1").lock()->push();
+			break;
+		case SDLK_F2:
+			hw->getButton("f2").lock()->push();
+			break;
+		case SDLK_F3:
+			hw->getButton("f3").lock()->push();
+			break;
+		case SDLK_F4:
+			hw->getButton("f4").lock()->push();
+			break;
+		case SDLK_F5:
+			hw->getButton("f5").lock()->push();
+			break;
+		case SDLK_F6:
+			hw->getButton("f6").lock()->push();
+			break;
 		case SDLK_ESCAPE:
-			mpc->getHardware().lock()->getButton("mainscreen").lock()->push();
+			hw->getButton("mainscreen").lock()->push();
+			break;
+		case SDLK_i:
+			hw->getButton("openwindow").lock()->push();
+			break;
+		case SDLK_LSHIFT:
+			hw->getButton("shift").lock()->push();
 			break;
 		case SDLK_EQUALS:
 			if (event.keysym.mod == KMOD_LCTRL) {
@@ -162,6 +188,14 @@ void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
 				}
 				else if (userScale == MEDIUM) {
 					setUserScale(LARGE);
+				}
+			}
+			else {
+				if (event.keysym.mod == KMOD_LSHIFT) {
+					hw->getDataWheel().lock()->turn(10);
+				}
+				else {
+					hw->getDataWheel().lock()->turn(1);
 				}
 			}
 			break;
@@ -174,27 +208,35 @@ void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
 					setUserScale(SMALL);
 				}
 			}
+			else {
+				if (event.keysym.mod == KMOD_LSHIFT) {
+					hw->getDataWheel().lock()->turn(-10);
+				}
+				else {
+					hw->getDataWheel().lock()->turn(-1);
+				}
+			}
 			break;
 		case SDLK_LEFT:
-			mpc->getHardware().lock()->getButton("left").lock()->push();
+			hw->getButton("left").lock()->push();
             break;
         case SDLK_UP:
-			mpc->getHardware().lock()->getButton("up").lock()->push();
+			hw->getButton("up").lock()->push();
 			break;
         case SDLK_RIGHT:
-			mpc->getHardware().lock()->getButton("right").lock()->push();
+			hw->getButton("right").lock()->push();
 			break;
         case SDLK_DOWN:
-			mpc->getHardware().lock()->getButton("down").lock()->push();
+			hw->getButton("down").lock()->push();
 			break;
 		case SDLK_z:
-			mpc->getHardware().lock()->getPad(0).lock()->push(127);
+			hw->getPad(0).lock()->push(127);
 			break;
 		case SDLK_x:
-			mpc->getHardware().lock()->getPad(1).lock()->push(127);
+			hw->getPad(1).lock()->push(127);
 			break;
 		case SDLK_c:
-			mpc->getHardware().lock()->getPad(2).lock()->push(127);
+			hw->getPad(2).lock()->push(127);
 			break;
     }
 	mpc->getLayeredScreen().lock()->Draw();
@@ -203,50 +245,55 @@ void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
 }
 
 void Gui::handleKeyUp(const SDL_KeyboardEvent& event) {
+	auto hw = mpc->getHardware().lock();
 	switch (event.keysym.sym) {
+	case SDLK_F1:
+		hw->getButton("f1").lock()->release();
+		break;
+	case SDLK_F2:
+		hw->getButton("f2").lock()->release();
+		break;
+	case SDLK_F3:
+		hw->getButton("f3").lock()->release();
+		break;
+	case SDLK_F4:
+		hw->getButton("f4").lock()->release();
+		break;
+	case SDLK_F5:
+		hw->getButton("f5").lock()->release();
+		break;
+	case SDLK_F6:
+		hw->getButton("f6").lock()->release();
+		break;
+	case SDLK_i:
+		hw->getButton("openwindow").lock()->release();
+		break;
+	case SDLK_LSHIFT:
+		hw->getButton("shift").lock()->release();
+		break;
 	case SDLK_ESCAPE:
-		mpc->getHardware().lock()->getButton("mainscreen").lock()->release();
-		break;
-	case SDLK_EQUALS:
-		if (event.keysym.mod == KMOD_LCTRL) {
-			if (userScale == SMALL) {
-				setUserScale(MEDIUM);
-			}
-			else if (userScale == MEDIUM) {
-				setUserScale(LARGE);
-			}
-		}
-		break;
-	case SDLK_MINUS:
-		if (event.keysym.mod == KMOD_LCTRL) {
-			if (userScale == LARGE) {
-				setUserScale(MEDIUM);
-			}
-			else if (userScale == MEDIUM) {
-				setUserScale(SMALL);
-			}
-		}
+		hw->getButton("mainscreen").lock()->release();
 		break;
 	case SDLK_LEFT:
-		mpc->getHardware().lock()->getButton("left").lock()->release();
+		hw->getButton("left").lock()->release();
 		break;
 	case SDLK_UP:
-		mpc->getHardware().lock()->getButton("up").lock()->release();
+		hw->getButton("up").lock()->release();
 		break;
 	case SDLK_RIGHT:
-		mpc->getHardware().lock()->getButton("right").lock()->release();
+		hw->getButton("right").lock()->release();
 		break;
 	case SDLK_DOWN:
-		mpc->getHardware().lock()->getButton("down").lock()->release();
+		hw->getButton("down").lock()->release();
 		break;
 	case SDLK_z:
-		mpc->getHardware().lock()->getPad(0).lock()->release();
+		hw->getPad(0).lock()->release();
 		break;
 	case SDLK_x:
-		mpc->getHardware().lock()->getPad(1).lock()->release();
+		hw->getPad(1).lock()->release();
 		break;
 	case SDLK_c:
-		mpc->getHardware().lock()->getPad(2).lock()->release();
+		hw->getPad(2).lock()->release();
 		break;
 	}
 	mpc->getLayeredScreen().lock()->Draw();
