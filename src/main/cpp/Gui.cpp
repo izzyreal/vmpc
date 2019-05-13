@@ -172,6 +172,36 @@ void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
 	case SDLK_F6:
 		hw->getButton("f6").lock()->push();
 		break;
+	case SDLK_1:
+		hw->getButton("1").lock()->push();
+		break;
+	case SDLK_2:
+		hw->getButton("2").lock()->push();
+		break;
+	case SDLK_3:
+		hw->getButton("3").lock()->push();
+		break;
+	case SDLK_4:
+		hw->getButton("4").lock()->push();
+		break;
+	case SDLK_5:
+		hw->getButton("5").lock()->push();
+		break;
+	case SDLK_6:
+		hw->getButton("6").lock()->push();
+		break;	
+	case SDLK_7:
+		hw->getButton("7").lock()->push();
+		break;
+	case SDLK_8:
+		hw->getButton("8").lock()->push();
+		break;
+	case SDLK_9:
+		hw->getButton("9").lock()->push();
+		break;
+	case SDLK_0:
+		hw->getButton("0").lock()->push();
+		break;
 	case SDLK_ESCAPE:
 		hw->getButton("mainscreen").lock()->push();
 		break;
@@ -264,6 +294,36 @@ void Gui::handleKeyUp(const SDL_KeyboardEvent& event) {
 		break;
 	case SDLK_F6:
 		hw->getButton("f6").lock()->release();
+		break;
+	case SDLK_1:
+		hw->getButton("1").lock()->release();
+		break;
+	case SDLK_2:
+		hw->getButton("2").lock()->release();
+		break;
+	case SDLK_3:
+		hw->getButton("3").lock()->release();
+		break;
+	case SDLK_4:
+		hw->getButton("4").lock()->release();
+		break;
+	case SDLK_5:
+		hw->getButton("5").lock()->release();
+		break;
+	case SDLK_6:
+		hw->getButton("6").lock()->release();
+		break;
+	case SDLK_7:
+		hw->getButton("7").lock()->release();
+		break;
+	case SDLK_8:
+		hw->getButton("8").lock()->release();
+		break;
+	case SDLK_9:
+		hw->getButton("9").lock()->release();
+		break;
+	case SDLK_0:
+		hw->getButton("0").lock()->release();
 		break;
 	case SDLK_i:
 		hw->getButton("openwindow").lock()->release();
