@@ -46,26 +46,22 @@ Gui::Gui(mpc::Mpc* mpc)
 	const int panelX = (width - panelWidth) / 2;
 	const int panelY = (height - panelHeight) / 2;
 
-	auto panel = make_shared<Panel>(MRECT(panelX, panelY, panelX + panelWidth, panelY + panelHeight), "audio-preferences-panel");
-	
-	auto labelRect = MRECT(panelX, panelY, panelX + 200, panelY + 50);
-	float labelColor[3] = { 0.0f, 0.0f, 0.0f };
-	auto label = make_shared<Label>(labelRect, labelColor, "driver-type-label", "Driver type:");
-	panel->addChild(label);
-	//rootComponent->addChild(panel);
-
-	auto pixels = mpc->getLayeredScreen().lock()->getPixels();
-
-	float lcdBgColor[3] = { 0.8f, 0.8f, 0.9f };
-	float lcdFgColor[3] = { 0.1f, 0.2f, 0.15f };
 	const int lcdX = 140;
 	const int lcdY = 67;
 	const int lcdR = lcdX + 248;
 	const int lcdB = lcdY + 60;
-	auto lcd = make_shared<Lcd>(MRECT(lcdX, lcdY, lcdR, lcdB), lcdBgColor, lcdFgColor, pixels, "lcd");
-	mpc->getLayeredScreen().lock()->Draw();
+	const auto pixels = mpc->getLayeredScreen().lock()->getPixels();
+	const auto lcd = make_shared<Lcd>(MRECT(lcdX, lcdY, lcdR, lcdB), pixels, "lcd");
+
+	const MColorF lcdBgColor(1.0f, 0.8f, 0.8f, 0.9f);
+	const MColorF lcdFgColor(1.0f, 0.1f, 0.2f, 0.15f);
+	lcd->setBgColor(lcdBgColor);
+	lcd->setFgColor(lcdFgColor);
+
 	rootComponent->addChild(lcd);
 	initBackground();
+
+	mpc->getLayeredScreen().lock()->Draw();
 }
 
 Gui::~Gui()

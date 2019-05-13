@@ -1,5 +1,5 @@
 #pragma once
-#include <cairo-svg.h>
+#include <cairo.h>
 
 #include <gui/BasicStructs.hpp>
 
@@ -16,6 +16,8 @@ private:
 protected:
 	MRECT r;
 	string name = "";
+	MColorF bgColor;
+	MColorF fgColor;
 
 protected:
 	bool dirty = true;
@@ -42,5 +44,9 @@ public:
 	bool isDirty();
 	bool contains(int x, int y);
 	string getName() { return name; }
+
+public:
+	void setBgColor(const MColorF& color) { bgColor = color; }
+	void setFgColor(const MColorF& color) { fgColor = color; }
 
 };
