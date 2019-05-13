@@ -8,6 +8,7 @@
 #include <Mpc.hpp>
 #include <hardware/Hardware.hpp>
 #include <hardware/HwPad.hpp>
+#include <hardware/Button.hpp>
 
 #include "mpc2.h"
 #include "pad.h"
@@ -151,28 +152,106 @@ void Gui::setUserScale(const float& userScale) {
 
 void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
     switch(event.keysym.sym ){
-        case SDLK_LEFT:
-            setUserScale(SMALL);
+		case SDLK_ESCAPE:
+			mpc->getHardware().lock()->getButton("mainscreen").lock()->push();
+			break;
+		case SDLK_EQUALS:
+			if (event.keysym.mod == KMOD_LCTRL) {
+				if (userScale == SMALL) {
+					setUserScale(MEDIUM);
+				}
+				else if (userScale == MEDIUM) {
+					setUserScale(LARGE);
+				}
+			}
+			break;
+		case SDLK_MINUS:
+			if (event.keysym.mod == KMOD_LCTRL) {
+				if (userScale == LARGE) {
+					setUserScale(MEDIUM);
+				}
+				else if (userScale == MEDIUM) {
+					setUserScale(SMALL);
+				}
+			}
+			break;
+		case SDLK_LEFT:
+			mpc->getHardware().lock()->getButton("left").lock()->push();
             break;
         case SDLK_UP:
-            setUserScale(MEDIUM);
-            break;
+			mpc->getHardware().lock()->getButton("up").lock()->push();
+			break;
         case SDLK_RIGHT:
-            setUserScale(LARGE);
-            break;
+			mpc->getHardware().lock()->getButton("right").lock()->push();
+			break;
+        case SDLK_DOWN:
+			mpc->getHardware().lock()->getButton("down").lock()->push();
+			break;
 		case SDLK_z:
 			mpc->getHardware().lock()->getPad(0).lock()->push(127);
-			mpc->getHardware().lock()->getPad(0).lock()->release();
 			break;
 		case SDLK_x:
 			mpc->getHardware().lock()->getPad(1).lock()->push(127);
-			mpc->getHardware().lock()->getPad(1).lock()->release();
 			break;
 		case SDLK_c:
 			mpc->getHardware().lock()->getPad(2).lock()->push(127);
-			mpc->getHardware().lock()->getPad(2).lock()->release();
 			break;
     }
+	mpc->getLayeredScreen().lock()->Draw();
+	rootComponent->draw(cairoContext, false);
+	draw();
+}
+
+void Gui::handleKeyUp(const SDL_KeyboardEvent& event) {
+	switch (event.keysym.sym) {
+	case SDLK_ESCAPE:
+		mpc->getHardware().lock()->getButton("mainscreen").lock()->release();
+		break;
+	case SDLK_EQUALS:
+		if (event.keysym.mod == KMOD_LCTRL) {
+			if (userScale == SMALL) {
+				setUserScale(MEDIUM);
+			}
+			else if (userScale == MEDIUM) {
+				setUserScale(LARGE);
+			}
+		}
+		break;
+	case SDLK_MINUS:
+		if (event.keysym.mod == KMOD_LCTRL) {
+			if (userScale == LARGE) {
+				setUserScale(MEDIUM);
+			}
+			else if (userScale == MEDIUM) {
+				setUserScale(SMALL);
+			}
+		}
+		break;
+	case SDLK_LEFT:
+		mpc->getHardware().lock()->getButton("left").lock()->release();
+		break;
+	case SDLK_UP:
+		mpc->getHardware().lock()->getButton("up").lock()->release();
+		break;
+	case SDLK_RIGHT:
+		mpc->getHardware().lock()->getButton("right").lock()->release();
+		break;
+	case SDLK_DOWN:
+		mpc->getHardware().lock()->getButton("down").lock()->release();
+		break;
+	case SDLK_z:
+		mpc->getHardware().lock()->getPad(0).lock()->release();
+		break;
+	case SDLK_x:
+		mpc->getHardware().lock()->getPad(1).lock()->release();
+		break;
+	case SDLK_c:
+		mpc->getHardware().lock()->getPad(2).lock()->release();
+		break;
+	}
+	mpc->getLayeredScreen().lock()->Draw();
+	rootComponent->draw(cairoContext, false);
+	draw();
 }
 
 /* end of keyboard handler */
@@ -255,6 +334,9 @@ void Gui::startLoop() {
 				break;
             case SDL_KEYDOWN:
                 handleKeyDown(event.key);
+                break;
+            case SDL_KEYUP:
+                handleKeyUp(event.key);
                 break;
             case SDL_QUIT:
                 quit = true;

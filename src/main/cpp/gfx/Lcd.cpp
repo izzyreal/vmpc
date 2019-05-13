@@ -39,6 +39,7 @@ void Lcd::draw(cairo_t* context, bool dirtyOnly) {
 		cairo_scale(context, 0.5f, 0.5f);
 		cairo_set_source_surface(context, surface, 0, 0);
 		cairo_paint(context);
+		cairo_scale(context, 2.0f, 2.0f);
 
 		restoreTranslate(context);
 		restoreClip(context);

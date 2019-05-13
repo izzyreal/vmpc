@@ -88,6 +88,7 @@ public:
     
 private:
     void handleKeyDown(const SDL_KeyboardEvent&);
+    void handleKeyUp(const SDL_KeyboardEvent&);
 	void handleMouseDown(const SDL_MouseButtonEvent&);
 
 private:
