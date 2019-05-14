@@ -18,6 +18,8 @@ namespace mpc {
 	class Mpc;
 }
 
+class KeyDownHandler;
+
 class Gui
 {
 public:
@@ -26,6 +28,7 @@ public:
 
 private:
 	mpc::Mpc* mpc;
+	KeyDownHandler* keyDownHandler;
 
 private:
     SDL_Renderer* sdlRenderer;
@@ -38,8 +41,8 @@ private:
     cairo_surface_t* cairoSurface = nullptr;
     cairo_t* cairoContext = nullptr;
 
-private:
-    const float SMALL = 0.75f, MEDIUM = 1.0f, LARGE = 1.5f;
+public:
+    static const float SMALL, MEDIUM, LARGE;
     const float BG_WIDTH = 940.f;
     const float BG_HEIGHT = 686.f;
     
@@ -85,9 +88,9 @@ public:
 
 public:
     void setUserScale(const float&);
-    
+	const float getUserScale();
+
 private:
-    void handleKeyDown(const SDL_KeyboardEvent&);
     void handleKeyUp(const SDL_KeyboardEvent&);
 	void handleMouseDown(const SDL_MouseButtonEvent&);
 

@@ -1,5 +1,7 @@
 #include "Gui.hpp"
 
+#include "kb/KeyDownHandler.hpp"
+
 #include "gfx/SvgComponent.hpp"
 #include "gfx/Panel.hpp"
 #include "gfx/Label.hpp"
@@ -16,9 +18,16 @@
 
 /* ctor & dtor */
 
+const float Gui::SMALL = 0.75f;
+const float Gui::MEDIUM = 1.0f;
+const float Gui::LARGE = 1.5f;
+
 Gui::Gui(mpc::Mpc* mpc)
 {
 	this->mpc = mpc;
+	
+	keyDownHandler = new KeyDownHandler(mpc, this);
+
 	const auto width = cairo_code_mpc2_get_width();
 	const auto height = cairo_code_mpc2_get_height();
     rootComponent = make_shared<SvgComponent>(MRECT(0, 0, width, height), "bg", cairo_code_mpc2_render);
@@ -68,6 +77,7 @@ Gui::Gui(mpc::Mpc* mpc)
 
 Gui::~Gui()
 {
+	delete keyDownHandler;
 }
 
 /* end of ctor & dtor */
@@ -148,128 +158,12 @@ void Gui::setUserScale(const float& userScale) {
     initCairo();
 }
 
+const float Gui::getUserScale() {
+	return userScale;
+}
+
 
 /* keyboard handler */
-
-void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
-	auto hw = mpc->getHardware().lock();
-	switch (event.keysym.sym) {
-	case SDLK_F1:
-		hw->getButton("f1").lock()->push();
-		break;
-	case SDLK_F2:
-		hw->getButton("f2").lock()->push();
-		break;
-	case SDLK_F3:
-		hw->getButton("f3").lock()->push();
-		break;
-	case SDLK_F4:
-		hw->getButton("f4").lock()->push();
-		break;
-	case SDLK_F5:
-		hw->getButton("f5").lock()->push();
-		break;
-	case SDLK_F6:
-		hw->getButton("f6").lock()->push();
-		break;
-	case SDLK_1:
-		hw->getButton("1").lock()->push();
-		break;
-	case SDLK_2:
-		hw->getButton("2").lock()->push();
-		break;
-	case SDLK_3:
-		hw->getButton("3").lock()->push();
-		break;
-	case SDLK_4:
-		hw->getButton("4").lock()->push();
-		break;
-	case SDLK_5:
-		hw->getButton("5").lock()->push();
-		break;
-	case SDLK_6:
-		hw->getButton("6").lock()->push();
-		break;	
-	case SDLK_7:
-		hw->getButton("7").lock()->push();
-		break;
-	case SDLK_8:
-		hw->getButton("8").lock()->push();
-		break;
-	case SDLK_9:
-		hw->getButton("9").lock()->push();
-		break;
-	case SDLK_0:
-		hw->getButton("0").lock()->push();
-		break;
-	case SDLK_ESCAPE:
-		hw->getButton("mainscreen").lock()->push();
-		break;
-	case SDLK_i:
-		hw->getButton("openwindow").lock()->push();
-		break;
-	case SDLK_LSHIFT:
-		hw->getButton("shift").lock()->push();
-		break;
-	case SDLK_EQUALS:
-		if (event.keysym.mod == KMOD_LCTRL) {
-			if (userScale == SMALL) {
-				setUserScale(MEDIUM);
-			}
-			else if (userScale == MEDIUM) {
-				setUserScale(LARGE);
-			}
-		}
-		else {
-			if (event.keysym.mod == KMOD_LSHIFT) {
-				hw->getDataWheel().lock()->turn(10);
-			}
-			else {
-				hw->getDataWheel().lock()->turn(1);
-			}
-		}
-		break;
-	case SDLK_MINUS:
-		if (event.keysym.mod == KMOD_LCTRL) {
-			if (userScale == LARGE) {
-				setUserScale(MEDIUM);
-			}
-			else if (userScale == MEDIUM) {
-				setUserScale(SMALL);
-			}
-		}
-		else {
-			if (event.keysym.mod == KMOD_LSHIFT) {
-				hw->getDataWheel().lock()->turn(-10);
-			}
-			else {
-				hw->getDataWheel().lock()->turn(-1);
-			}
-		}
-		break;
-	case SDLK_LEFT:
-		hw->getButton("left").lock()->push();
-		break;
-	case SDLK_UP:
-		hw->getButton("up").lock()->push();
-		break;
-	case SDLK_RIGHT:
-		hw->getButton("right").lock()->push();
-		break;
-	case SDLK_DOWN:
-		hw->getButton("down").lock()->push();
-		break;
-	case SDLK_z:
-		hw->getPad(0).lock()->push(127);
-		break;
-	case SDLK_x:
-		hw->getPad(1).lock()->push(127);
-		break;
-	case SDLK_c:
-		hw->getPad(2).lock()->push(127);
-		break;
-	}
-}
 
 void Gui::handleKeyUp(const SDL_KeyboardEvent& event) {
 	auto hw = mpc->getHardware().lock();
@@ -435,7 +329,7 @@ void Gui::startLoop() {
 				handleMouseDown(event.button);
 				break;
             case SDL_KEYDOWN:
-                handleKeyDown(event.key);
+                keyDownHandler->handle(event.key);
                 break;
             case SDL_KEYUP:
                 handleKeyUp(event.key);

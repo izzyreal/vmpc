@@ -3,17 +3,19 @@
 #include <SDL.h>
 
 #include <Mpc.hpp>
+#include <Gui.hpp>
 
 class KeyDownHandler
 {
 public:
-	KeyDownHandler(const mpc::Mpc*);
+	KeyDownHandler(mpc::Mpc* mpc, Gui* gui);
 	~KeyDownHandler();
 
 public:
 	void handle(const SDL_KeyboardEvent&);
 
 private:
-	const mpc::Mpc* mpc;
+	mpc::Mpc* mpc;
+	Gui* gui;
 };
 
