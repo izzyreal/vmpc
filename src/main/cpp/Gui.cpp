@@ -14,8 +14,9 @@
 #include <hardware/Button.hpp>
 #include <hardware/DataWheel.hpp>
 
-#include "mpc2.h"
-#include "pad.h"
+#include "gfx/assets/bg.h"
+#include "gfx/assets/pad.h"
+#include "gfx/assets/wheel.h"
 
 /* ctor & dtor */
 
@@ -30,9 +31,9 @@ Gui::Gui(mpc::Mpc* mpc)
 	keyDownHandler = new KeyDownHandler(mpc, this);
 	keyUpHandler = new KeyUpHandler(mpc);
 
-	const auto width = cairo_code_mpc2_get_width();
-	const auto height = cairo_code_mpc2_get_height();
-    rootComponent = make_shared<SvgComponent>(MRECT(0, 0, width, height), "bg", cairo_code_mpc2_render);
+	const auto width = cairo_code_bg_get_width();
+	const auto height = cairo_code_bg_get_height();
+    rootComponent = make_shared<SvgComponent>(MRECT(0, 0, width, height), "bg", cairo_code_bg_render);
 	
 	const int padX = 548;
 	const int padY = 285;
@@ -72,6 +73,12 @@ Gui::Gui(mpc::Mpc* mpc)
 	lcd->setFgColor(lcdFgColor);
 
 	rootComponent->addChild(lcd);
+
+	const int wheelX = 277;
+	const int wheelY = 308;
+
+	rootComponent->addChild(make_shared<SvgComponent>(MRECT(wheelX, wheelY, wheelX + cairo_code_wheel_get_width(), wheelY + cairo_code_wheel_get_height()), "datawheel", cairo_code_wheel_render));
+
 	initBackground();
 
 	mpc->getLayeredScreen().lock()->Draw();
