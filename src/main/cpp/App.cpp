@@ -141,6 +141,9 @@ int main(int argc, char *argv[]) {
 	auto gui = Gui(&mpc);
 	gui.initSDL();
     gui.setUserScale(1.0f);
+
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("VMPC2000XL is ready to use"));
+
 	gui.startLoop();
 
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Shutting down VMPC2000XL..."));
@@ -154,6 +157,10 @@ int main(int argc, char *argv[]) {
 	audioWrapper.stop();
 	
 	gui.destroySDL();
+
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("=================="));
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Shutdown completed"));
+	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("=================="));
 
 	return 0;
 }
