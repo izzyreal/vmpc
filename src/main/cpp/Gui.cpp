@@ -77,7 +77,9 @@ Gui::Gui(mpc::Mpc* mpc)
 	const int wheelX = 277;
 	const int wheelY = 308;
 
-	rootComponent->addChild(make_shared<SvgComponent>(MRECT(wheelX, wheelY, wheelX + cairo_code_wheel_get_width(), wheelY + cairo_code_wheel_get_height()), "datawheel", cairo_code_wheel_render));
+	auto dataWheelShared = make_shared<SvgComponent>(MRECT(wheelX, wheelY, wheelX + cairo_code_wheel_get_width(), wheelY + cairo_code_wheel_get_height()), "datawheel", cairo_code_wheel_render);
+	dataWheel = dataWheelShared;
+	rootComponent->addChild(dataWheelShared);
 
 	initBackground();
 
@@ -242,7 +244,7 @@ void Gui::destroySDL() {
 void Gui::startLoop() {
     while (!quit)
     {
-        SDL_WaitEventTimeout(&event, 100);
+        SDL_WaitEventTimeout(&event, 1);
      
         switch (event.type)
         {
@@ -264,4 +266,9 @@ void Gui::startLoop() {
 
     }
 }
+
 /* end of one-time methods */
+
+weak_ptr<Component> Gui::getDataWheel() {
+	return dataWheel;
+}

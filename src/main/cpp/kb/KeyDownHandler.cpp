@@ -5,6 +5,8 @@
 #include <hardware/Button.hpp>
 #include <hardware/DataWheel.hpp>
 
+#include <gfx/Component.hpp>
+
 KeyDownHandler::KeyDownHandler(mpc::Mpc* _mpc, Gui* _gui) : mpc(_mpc), gui(_gui)
 {
 }
@@ -85,9 +87,11 @@ void KeyDownHandler::handle(const SDL_KeyboardEvent& event) {
 		else {
 			if (event.keysym.mod == KMOD_LSHIFT) {
 				hw->getDataWheel().lock()->turn(10);
+				gui->getDataWheel().lock()->rotate(0.1f);
 			}
 			else {
 				hw->getDataWheel().lock()->turn(1);
+				gui->getDataWheel().lock()->rotate(0.05f);
 			}
 		}
 		break;
@@ -103,9 +107,11 @@ void KeyDownHandler::handle(const SDL_KeyboardEvent& event) {
 		else {
 			if (event.keysym.mod == KMOD_LSHIFT) {
 				hw->getDataWheel().lock()->turn(-10);
+				gui->getDataWheel().lock()->rotate(-0.1f);
 			}
 			else {
 				hw->getDataWheel().lock()->turn(-1);
+				gui->getDataWheel().lock()->rotate(-0.05f);
 			}
 		}
 		break;

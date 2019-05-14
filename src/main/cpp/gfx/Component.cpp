@@ -5,6 +5,9 @@ Component::Component(const MRECT& rect, const string& name) {
 	this->name = name;
 }
 
+void Component::rotate(const float& angle) {
+	rotation += angle;
+}
 
 void Component::addChild(shared_ptr<Component> comp) {
 	children.push_back(move(comp));
@@ -49,6 +52,21 @@ void Component::prepareClip(cairo_t* context) {
 void Component::restoreClip(cairo_t* context) {
 	cairo_reset_clip(context);
 }
+
+void Component::prepareRotate(cairo_t* context) {
+	if (rotation == 0.0f) return;
+	cairo_translate(context, r.MW(), r.MH());
+	cairo_rotate(context, rotation);
+	cairo_translate(context, -r.MW() , -r.MH());
+}
+
+void Component::restoreRotate(cairo_t* context) {
+	if (rotation == 0.0f) return;
+	cairo_translate(context, r.MW(), r.MH());
+	cairo_rotate(context, -rotation);
+	cairo_translate(context, -r.MW(), -r.MH());
+}
+
 
 bool Component::contains(const int x, const int y) {
 	return r.Contains(x, y);

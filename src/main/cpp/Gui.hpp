@@ -33,6 +33,9 @@ private:
 	KeyUpHandler* keyUpHandler;
 
 private:
+	weak_ptr<Component> dataWheel;
+
+private:
     SDL_Renderer* sdlRenderer;
     SDL_Window* sdlWindow;
     SDL_Surface* sdlSurface = nullptr;
@@ -91,6 +94,7 @@ public:
 public:
     void setUserScale(const float&);
 	const float getUserScale();
+	weak_ptr<Component> getDataWheel();
 
 private:
 	void handleMouseDown(const SDL_MouseButtonEvent&);
