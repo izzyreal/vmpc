@@ -19,6 +19,7 @@ namespace mpc {
 }
 
 class KeyDownHandler;
+class KeyUpHandler;
 
 class Gui
 {
@@ -29,6 +30,7 @@ public:
 private:
 	mpc::Mpc* mpc;
 	KeyDownHandler* keyDownHandler;
+	KeyUpHandler* keyUpHandler;
 
 private:
     SDL_Renderer* sdlRenderer;
@@ -91,7 +93,6 @@ public:
 	const float getUserScale();
 
 private:
-    void handleKeyUp(const SDL_KeyboardEvent&);
 	void handleMouseDown(const SDL_MouseButtonEvent&);
 
 private:

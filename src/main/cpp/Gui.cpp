@@ -1,6 +1,7 @@
 #include "Gui.hpp"
 
 #include "kb/KeyDownHandler.hpp"
+#include "kb/KeyUpHandler.hpp"
 
 #include "gfx/SvgComponent.hpp"
 #include "gfx/Panel.hpp"
@@ -27,6 +28,7 @@ Gui::Gui(mpc::Mpc* mpc)
 	this->mpc = mpc;
 	
 	keyDownHandler = new KeyDownHandler(mpc, this);
+	keyUpHandler = new KeyUpHandler(mpc);
 
 	const auto width = cairo_code_mpc2_get_width();
 	const auto height = cairo_code_mpc2_get_height();
@@ -78,6 +80,7 @@ Gui::Gui(mpc::Mpc* mpc)
 Gui::~Gui()
 {
 	delete keyDownHandler;
+	delete keyUpHandler;
 }
 
 /* end of ctor & dtor */
@@ -162,95 +165,6 @@ const float Gui::getUserScale() {
 	return userScale;
 }
 
-
-/* keyboard handler */
-
-void Gui::handleKeyUp(const SDL_KeyboardEvent& event) {
-	auto hw = mpc->getHardware().lock();
-	switch (event.keysym.sym) {
-	case SDLK_F1:
-		hw->getButton("f1").lock()->release();
-		break;
-	case SDLK_F2:
-		hw->getButton("f2").lock()->release();
-		break;
-	case SDLK_F3:
-		hw->getButton("f3").lock()->release();
-		break;
-	case SDLK_F4:
-		hw->getButton("f4").lock()->release();
-		break;
-	case SDLK_F5:
-		hw->getButton("f5").lock()->release();
-		break;
-	case SDLK_F6:
-		hw->getButton("f6").lock()->release();
-		break;
-	case SDLK_1:
-		hw->getButton("1").lock()->release();
-		break;
-	case SDLK_2:
-		hw->getButton("2").lock()->release();
-		break;
-	case SDLK_3:
-		hw->getButton("3").lock()->release();
-		break;
-	case SDLK_4:
-		hw->getButton("4").lock()->release();
-		break;
-	case SDLK_5:
-		hw->getButton("5").lock()->release();
-		break;
-	case SDLK_6:
-		hw->getButton("6").lock()->release();
-		break;
-	case SDLK_7:
-		hw->getButton("7").lock()->release();
-		break;
-	case SDLK_8:
-		hw->getButton("8").lock()->release();
-		break;
-	case SDLK_9:
-		hw->getButton("9").lock()->release();
-		break;
-	case SDLK_0:
-		hw->getButton("0").lock()->release();
-		break;
-	case SDLK_i:
-		hw->getButton("openwindow").lock()->release();
-		break;
-	case SDLK_LSHIFT:
-		hw->getButton("shift").lock()->release();
-		break;
-	case SDLK_ESCAPE:
-		hw->getButton("mainscreen").lock()->release();
-		break;
-	case SDLK_LEFT:
-		hw->getButton("left").lock()->release();
-		break;
-	case SDLK_UP:
-		hw->getButton("up").lock()->release();
-		break;
-	case SDLK_RIGHT:
-		hw->getButton("right").lock()->release();
-		break;
-	case SDLK_DOWN:
-		hw->getButton("down").lock()->release();
-		break;
-	case SDLK_z:
-		hw->getPad(0).lock()->release();
-		break;
-	case SDLK_x:
-		hw->getPad(1).lock()->release();
-		break;
-	case SDLK_c:
-		hw->getPad(2).lock()->release();
-		break;
-	}
-}
-
-/* end of keyboard handler */
-
 /* mouse handler */
 
 void Gui::handleMouseDown(const SDL_MouseButtonEvent& event) {
@@ -332,7 +246,7 @@ void Gui::startLoop() {
                 keyDownHandler->handle(event.key);
                 break;
             case SDL_KEYUP:
-                handleKeyUp(event.key);
+                keyUpHandler->handle(event.key);
                 break;
             case SDL_QUIT:
                 quit = true;
