@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
 
 	mpc.init(audioWrapper.getSampleRate(), inputCount / 2, outputCount / 2);
 	mpc.getLayeredScreen().lock()->openScreen("sequencer");
-	mpc.loadDemoBeat();
+	//mpc.loadDemoBeat();
 	// We make the MPC audio engine aware of the buffer size
 	mpc.getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(audioWrapper.getBufferSize());
 	
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
 	// With the audio engine running, we instantiate the graphics side of things
 	auto gui = Gui(&mpc);
 	gui.initSDL();
-    gui.setUserScale(1.0f);
+    gui.setUserScale(Gui::LARGE);
 
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("VMPC2000XL is ready to use"));
 

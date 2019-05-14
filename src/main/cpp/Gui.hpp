@@ -55,7 +55,7 @@ private:
     float bgRatio;
     
 private:
-    float userScale = MEDIUM;
+    float userScale = LARGE;
     bool quit = false;
 	int drawableWidth, drawableHeight;
     int desktopWidth, desktopHeight;
