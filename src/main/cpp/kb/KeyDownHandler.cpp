@@ -136,5 +136,59 @@ void KeyDownHandler::handle(const SDL_KeyboardEvent& event) {
 	case SDLK_c:
 		hw->getPad(2).lock()->push(127);
 		break;
+	case SDLK_v:
+		hw->getPad(3).lock()->push(127);
+		break;
+	case SDLK_a:
+		hw->getPad(4).lock()->push(127);
+		break;
+	case SDLK_s:
+		hw->getPad(5).lock()->push(127);
+		break;
+	case SDLK_d:
+		hw->getPad(6).lock()->push(127);
+		break;
+	case SDLK_f:
+		hw->getPad(7).lock()->push(127);
+		break;
+	case SDLK_b:
+		hw->getPad(8).lock()->push(127);
+		break;
+	case SDLK_n:
+		hw->getPad(9).lock()->push(127);
+		break;
+	case SDLK_m:
+		hw->getPad(10).lock()->push(127);
+		break;
+	case SDLK_COMMA:
+		hw->getPad(11).lock()->push(127);
+		break;
+	case SDLK_g:
+		hw->getPad(12).lock()->push(127);
+		break;
+	case SDLK_h:
+		hw->getPad(13).lock()->push(127);
+		break;
+	case SDLK_j:
+		hw->getPad(14).lock()->push(127);
+		break;
+	case SDLK_k:
+		hw->getPad(15).lock()->push(127);
+		break;
+	case SDLK_l:
+		hw->getButton("rec").lock()->push();
+		break;
+	case SDLK_SEMICOLON:
+		hw->getButton("overdub").lock()->push();
+		break;
+	case SDLK_QUOTE:
+		hw->getButton("stop").lock()->push();
+		break;
+	case SDLK_SPACE:
+		hw->getButton("play").lock()->push();
+		break;
+	case SDLK_BACKSLASH:
+		hw->getButton("playstart").lock()->push();
+		break;
 	}
 }
