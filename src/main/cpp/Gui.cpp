@@ -131,9 +131,11 @@ void Gui::scaleCairoContext() {
 }
 
 void Gui::draw() {
-    SDL_UpdateTexture(sdlTexture, NULL, (unsigned char*)sdlSurface->pixels, sdlSurface->pitch);
-    SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
-    SDL_RenderPresent(sdlRenderer);
+	mpc->getLayeredScreen().lock()->Draw();
+	rootComponent->draw(cairoContext, false);
+	SDL_UpdateTexture(sdlTexture, NULL, (unsigned char*)sdlSurface->pixels, sdlSurface->pitch);
+	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+	SDL_RenderPresent(sdlRenderer);
 }
 
 void Gui::setUserScale(const float& userScale) {
@@ -144,8 +146,6 @@ void Gui::setUserScale(const float& userScale) {
     initSDLSurface();
     initSDLTexture();
     initCairo();
-	rootComponent->draw(cairoContext, false);
-	draw();
 }
 
 
@@ -269,9 +269,6 @@ void Gui::handleKeyDown(const SDL_KeyboardEvent& event) {
 		hw->getPad(2).lock()->push(127);
 		break;
 	}
-	mpc->getLayeredScreen().lock()->Draw();
-	rootComponent->draw(cairoContext, false);
-	draw();
 }
 
 void Gui::handleKeyUp(const SDL_KeyboardEvent& event) {
@@ -356,9 +353,6 @@ void Gui::handleKeyUp(const SDL_KeyboardEvent& event) {
 		hw->getPad(2).lock()->release();
 		break;
 	}
-	mpc->getLayeredScreen().lock()->Draw();
-	rootComponent->draw(cairoContext, false);
-	draw();
 }
 
 /* end of keyboard handler */
@@ -433,7 +427,8 @@ void Gui::destroySDL() {
 void Gui::startLoop() {
     while (!quit)
     {
-        SDL_WaitEvent(&event);
+        SDL_WaitEventTimeout(&event, 100);
+     
         switch (event.type)
         {
 			case SDL_MOUSEBUTTONDOWN:
@@ -449,6 +444,9 @@ void Gui::startLoop() {
                 quit = true;
                 break;
         }
+		draw();
+		event = SDL_Event();
+
     }
 }
 /* end of one-time methods */
