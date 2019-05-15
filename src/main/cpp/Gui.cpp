@@ -84,10 +84,6 @@ Gui::Gui(mpc::Mpc* mpc)
 	auto dataWheelShared = make_shared<SvgComponent>(MRECT(wheelX, wheelY, wheelX + cairo_code_wheel_get_width(), wheelY + cairo_code_wheel_get_height()), "datawheel", cairo_code_wheel_render);
 	dataWheel = dataWheelShared;
 	rootComponent->addChild(dataWheelShared);
-
-	initBackground();
-
-	mpc->getLayeredScreen().lock()->Draw();
 }
 
 Gui::~Gui()
@@ -215,13 +211,9 @@ void Gui::initSDL() {
     sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0);
 }
 
-void Gui::initBackground() {
-    bgRatio = BG_HEIGHT / BG_WIDTH;
-}
-
 void Gui::initWindow() {
     initialWindowWidth = BG_WIDTH;
-    initialWindowHeight = initialWindowWidth * bgRatio;
+    initialWindowHeight = initialWindowWidth * (BG_HEIGHT / BG_WIDTH);
     sdlWindow = SDL_CreateWindow("vMPC2000XL", 0, 0, 0, 0, SDL_WINDOW_ALLOW_HIGHDPI);
 }
 

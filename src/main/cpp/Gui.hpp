@@ -76,7 +76,6 @@ private:
     void initCairoContext();
     void scaleCairoContext();
     void initWindow();
-    void initBackground();
     void refreshDesktopSize();
     void refreshDrawableSize();
     void setWindowSize();
