@@ -56,9 +56,6 @@ public:
     const float BG_HEIGHT = 686.f;
     
 private:
-    float bgRatio;
-    
-private:
     float userScale = LARGE;
     bool quit = false;
 	int drawableWidth, drawableHeight;
