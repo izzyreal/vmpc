@@ -5,14 +5,14 @@
 #include <Mpc.hpp>
 #include <Gui.hpp>
 
-class KeyDownHandler
+class MouseUpHandler
 {
 public:
-	KeyDownHandler(mpc::Mpc*, Gui*);
-	~KeyDownHandler();
+	MouseUpHandler(mpc::Mpc*, Gui*);
+	~MouseUpHandler();
 
 public:
-	void handle(const SDL_KeyboardEvent&);
+	void handle(const SDL_MouseButtonEvent&);
 
 private:
 	mpc::Mpc* mpc;

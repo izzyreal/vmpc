@@ -20,6 +20,8 @@ namespace mpc {
 
 class KeyDownHandler;
 class KeyUpHandler;
+class MouseDownHandler;
+class MouseUpHandler;
 
 class Gui
 {
@@ -31,6 +33,8 @@ private:
 	mpc::Mpc* mpc;
 	KeyDownHandler* keyDownHandler;
 	KeyUpHandler* keyUpHandler;
+	MouseDownHandler* mouseDownHandler;
+	MouseUpHandler* mouseUpHandler;
 
 private:
 	weak_ptr<Component> dataWheel;
@@ -60,7 +64,6 @@ private:
 	int drawableWidth, drawableHeight;
     int desktopWidth, desktopHeight;
     int initialWindowWidth, initialWindowHeight;
-    float cairoScale;
 	shared_ptr<Component> rootComponent;
 
 private:
@@ -95,9 +98,7 @@ public:
     void setUserScale(const float&);
 	const float getUserScale();
 	weak_ptr<Component> getDataWheel();
-
-private:
-	void handleMouseDown(const SDL_MouseButtonEvent&);
+	weak_ptr<Component> findTopChild(const int x, const int y);
 
 private:
 	log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("main"));

@@ -2,6 +2,8 @@
 
 #include "kb/KeyDownHandler.hpp"
 #include "kb/KeyUpHandler.hpp"
+#include "mouse/MouseDownHandler.hpp"
+#include "mouse/MouseUpHandler.hpp"
 
 #include "gfx/SvgComponent.hpp"
 #include "gfx/Panel.hpp"
@@ -30,6 +32,8 @@ Gui::Gui(mpc::Mpc* mpc)
 	
 	keyDownHandler = new KeyDownHandler(mpc, this);
 	keyUpHandler = new KeyUpHandler(mpc);
+	mouseDownHandler = new MouseDownHandler(mpc, this);
+	mouseUpHandler = new MouseUpHandler(mpc, this);
 
 	const auto width = cairo_code_bg_get_width();
 	const auto height = cairo_code_bg_get_height();
@@ -90,6 +94,8 @@ Gui::~Gui()
 {
 	delete keyDownHandler;
 	delete keyUpHandler;
+	delete mouseDownHandler;
+	delete mouseUpHandler;
 }
 
 /* end of ctor & dtor */
@@ -148,8 +154,7 @@ void Gui::initCairoContext() {
 }
 
 void Gui::scaleCairoContext() {
-    cairoScale = drawableWidth / BG_WIDTH;
-    cairo_scale(cairoContext, cairoScale, cairoScale);
+    cairo_scale(cairoContext, userScale, userScale);
 }
 
 void Gui::draw() {
@@ -173,19 +178,6 @@ void Gui::setUserScale(const float& userScale) {
 const float Gui::getUserScale() {
 	return userScale;
 }
-
-/* mouse handler */
-
-void Gui::handleMouseDown(const SDL_MouseButtonEvent& event) {
-	const auto x = event.x / cairoScale;
-	const auto y = event.y / cairoScale;
-	//printf("%f, %f\n", x, y);
-	auto c = rootComponent->findTopChild(x, y).lock();
-	if (!c) c = rootComponent;
-	printf("Mouse down: %s\n", c->getName().c_str());
-}
-
-/* end of mouse handler */
 
 /* re-usable destruction methods */
 
@@ -249,7 +241,10 @@ void Gui::startLoop() {
         switch (event.type)
         {
 			case SDL_MOUSEBUTTONDOWN:
-				handleMouseDown(event.button);
+				mouseDownHandler->handle(event.button);
+				break;
+			case SDL_MOUSEBUTTONUP:
+				mouseUpHandler->handle(event.button);
 				break;
             case SDL_KEYDOWN:
                 keyDownHandler->handle(event.key);
@@ -271,4 +266,10 @@ void Gui::startLoop() {
 
 weak_ptr<Component> Gui::getDataWheel() {
 	return dataWheel;
+}
+
+weak_ptr<Component> Gui::findTopChild(const int x, const int y) {
+	auto c = rootComponent->findTopChild(x, y).lock();
+	if (!c) c = rootComponent;
+	return c;
 }

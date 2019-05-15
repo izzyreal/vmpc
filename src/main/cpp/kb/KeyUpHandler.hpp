@@ -7,7 +7,7 @@
 class KeyUpHandler
 {
 public:
-	KeyUpHandler(mpc::Mpc* mpc);
+	KeyUpHandler(mpc::Mpc*);
 	~KeyUpHandler();
 
 public:
