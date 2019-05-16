@@ -150,7 +150,8 @@ void Gui::initCairoContext() {
 }
 
 void Gui::scaleCairoContext() {
-    cairo_scale(cairoContext, userScale, userScale);
+    const auto cairoScale = drawableWidth / BG_WIDTH;
+    cairo_scale(cairoContext, cairoScale, cairoScale);
 }
 
 void Gui::draw() {
@@ -228,7 +229,7 @@ void Gui::destroySDL() {
 void Gui::startLoop() {
     while (!quit)
     {
-        SDL_WaitEventTimeout(&event, 1);
+        SDL_WaitEventTimeout(&event, 10);
      
         switch (event.type)
         {
