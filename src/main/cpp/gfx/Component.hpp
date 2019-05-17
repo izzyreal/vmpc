@@ -44,7 +44,8 @@ public:
 public:
 	void addChild(shared_ptr<Component> comp);
 	weak_ptr<Component> findTopChild(const int x, const int y);
-	bool isDirty();
+	const bool isDirty();
+    void setDirty(const bool);
 	bool contains(int x, int y);
 	string getName() { return name; }
 

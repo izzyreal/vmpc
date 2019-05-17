@@ -38,6 +38,7 @@ private:
 
 private:
 	weak_ptr<Component> dataWheel;
+    weak_ptr<Component> lcd;
 
 private:
     SDL_Renderer* sdlRenderer;

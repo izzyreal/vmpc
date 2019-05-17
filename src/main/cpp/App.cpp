@@ -93,7 +93,7 @@ RtAudioWrapper instantiateAudioWrapper(CallbackData& data, const string& prefere
 	return RtAudioWrapper(rtaudio_callback, (void*)&data, preferencesFilePath);
 }
 
-#endif AUDIO_LIBARY == RTAUDIO
+#endif
 
 int main(int argc, char *argv[]) {
 	
@@ -109,7 +109,8 @@ int main(int argc, char *argv[]) {
 	logger.addAppender(fileAppender);
 
     logger.setLogLevel(INFO_LOG_LEVEL);
-    //logger.setLogLevel(TRACE_LOG_LEVEL);
+//    logger.setLogLevel(TRACE_LOG_LEVEL);
+    
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("======================"));
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("Starting VMPC2000XL..."));
 	LOG4CPLUS_INFO(logger, LOG4CPLUS_TEXT("======================"));
@@ -130,7 +131,7 @@ int main(int argc, char *argv[]) {
 
 	mpc.init(audioWrapper.getSampleRate(), inputCount / 2, outputCount / 2);
 	mpc.getLayeredScreen().lock()->openScreen("sequencer");
-	//mpc.loadDemoBeat();
+	mpc.loadDemoBeat();
 	// We make the MPC audio engine aware of the buffer size
 	mpc.getAudioMidiServices().lock()->getExternalAudioServer()->resizeBuffers(audioWrapper.getBufferSize());
 	

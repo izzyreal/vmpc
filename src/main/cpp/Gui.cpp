@@ -58,25 +58,20 @@ Gui::Gui(mpc::Mpc* mpc)
 		}
 	}
 
-	const int panelWidth = 400;
-	const int panelHeight = 400;
-
-	const int panelX = (width - panelWidth) / 2;
-	const int panelY = (height - panelHeight) / 2;
-
 	const int lcdX = 140;
 	const int lcdY = 67;
 	const int lcdR = lcdX + 248;
 	const int lcdB = lcdY + 60;
 	const auto pixels = mpc->getLayeredScreen().lock()->getPixels();
-	const auto lcd = make_shared<Lcd>(MRECT(lcdX, lcdY, lcdR, lcdB), pixels, "lcd");
-
+	const auto lcdShared = make_shared<Lcd>(MRECT(lcdX, lcdY, lcdR, lcdB), pixels, "lcd");
+    
 	const MColorF lcdBgColor(1.0f, 0.8f, 0.8f, 0.9f);
 	const MColorF lcdFgColor(1.0f, 0.1f, 0.2f, 0.15f);
-	lcd->setBgColor(lcdBgColor);
-	lcd->setFgColor(lcdFgColor);
+	lcdShared->setBgColor(lcdBgColor);
+	lcdShared->setFgColor(lcdFgColor);
 
-	rootComponent->addChild(lcd);
+    lcd = lcdShared;
+    rootComponent->addChild(lcdShared);
 
 	const int wheelX = 277;
 	const int wheelY = 308;
@@ -155,8 +150,11 @@ void Gui::scaleCairoContext() {
 }
 
 void Gui::draw() {
-	mpc->getLayeredScreen().lock()->Draw();
-	rootComponent->draw(cairoContext, false);
+    if (mpc->getLayeredScreen().lock()->IsDirty()) {
+        mpc->getLayeredScreen().lock()->Draw();
+        lcd.lock()->setDirty(true);
+    }
+	rootComponent->draw(cairoContext, true);
 	SDL_UpdateTexture(sdlTexture, NULL, (unsigned char*)sdlSurface->pixels, sdlSurface->pitch);
 	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
 	SDL_RenderPresent(sdlRenderer);
@@ -229,7 +227,7 @@ void Gui::destroySDL() {
 void Gui::startLoop() {
     while (!quit)
     {
-        SDL_WaitEventTimeout(&event, 10);
+        SDL_WaitEventTimeout(&event, 20);
      
         switch (event.type)
         {
@@ -249,7 +247,7 @@ void Gui::startLoop() {
                 quit = true;
                 break;
         }
-		draw();
+        draw();
 		event = SDL_Event();
 
     }

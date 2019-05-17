@@ -7,6 +7,7 @@ Component::Component(const MRECT& rect, const string& name) {
 
 void Component::rotate(const float& angle) {
 	rotation += angle;
+    dirty = true;
 }
 
 void Component::addChild(shared_ptr<Component> comp) {
@@ -23,11 +24,15 @@ weak_ptr<Component> Component::findTopChild(const int x, const int y) {
 	return {};
 }
 
-bool Component::isDirty() {
+const bool Component::isDirty() {
 	for (auto& c : children) {
 		if (c->isDirty()) return true;
 	}
 	return dirty;
+}
+
+void Component::setDirty(const bool b) {
+    dirty = b;
 }
 
 void Component::prepareTranslate(cairo_t* context) {
