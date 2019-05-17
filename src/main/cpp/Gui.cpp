@@ -165,12 +165,30 @@ void Gui::draw() {
     vector<MRECT*> updatedRects;
     
 	rootComponent->draw(cairoContext, true, updatedRects);
-    
+
     if (updatedRects.size() > 0) {
-        SDL_UpdateTexture(sdlTexture, NULL, (unsigned char*)sdlSurface->pixels, sdlSurface->pitch);
-        SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+        SDL_UpdateTexture(sdlTexture, nullptr, (unsigned char*)sdlSurface->pixels, sdlSurface->pitch);
+        SDL_RenderCopy(sdlRenderer, sdlTexture, nullptr, nullptr);
         SDL_RenderPresent(sdlRenderer);
     }
+    /*
+    const auto cairoScale = drawableWidth / BG_WIDTH;
+    MRECT addedRects;
+    if (updatedRects.size() > 0) {
+        for (auto& r : updatedRects) {
+//             Not sure if these rects provide possible leverage for updating the texture
+            if (addedRects.Empty()) {
+                addedRects = *r;
+            } else {
+                addedRects.Union(r);
+            }
+        }
+        SDL_Rect rectToUpdate{ (int) (addedRects.L * cairoScale), (int) (addedRects.T * cairoScale), (int) (addedRects.W() * cairoScale), (int) (addedRects.H() * cairoScale)};
+        SDL_UpdateTexture(sdlTexture, nullptr, (unsigned char*)sdlSurface->pixels, sdlSurface->pitch);
+        SDL_RenderCopy(sdlRenderer, sdlTexture, &rectToUpdate, &rectToUpdate);
+        SDL_RenderPresent(sdlRenderer);
+    }
+     */
 }
 
 void Gui::setUserScale(const float& userScale) {
