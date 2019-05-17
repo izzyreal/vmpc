@@ -58,21 +58,8 @@ Gui::Gui(mpc::Mpc* mpc)
 		}
 	}
 
-	const int lcdX = 140;
-	const int lcdY = 67;
-	const int lcdR = lcdX + 248;
-	const int lcdB = lcdY + 60;
-	const auto pixels = mpc->getLayeredScreen().lock()->getPixels();
-	const auto lcdShared = make_shared<Lcd>(MRECT(lcdX, lcdY, lcdR, lcdB), pixels, "lcd");
+    addLcd();
     
-	const MColorF lcdBgColor(1.0f, 0.8f, 0.8f, 0.9f);
-	const MColorF lcdFgColor(1.0f, 0.1f, 0.2f, 0.15f);
-	lcdShared->setBgColor(lcdBgColor);
-	lcdShared->setFgColor(lcdFgColor);
-
-    lcd = lcdShared;
-    rootComponent->addChild(lcdShared);
-
 	const int wheelX = 277;
 	const int wheelY = 308;
 
@@ -91,6 +78,23 @@ Gui::~Gui()
 
 /* end of ctor & dtor */
 
+
+void Gui::addLcd() {
+     const int lcdX = 140;
+     const int lcdY = 67;
+     const int lcdR = lcdX + 248;
+     const int lcdB = lcdY + 60;
+     const auto pixels = mpc->getLayeredScreen().lock()->getPixels();
+     const auto lcdShared = make_shared<Lcd>(MRECT(lcdX, lcdY, lcdR, lcdB), pixels, "lcd");
+     
+     const MColorF lcdBgColor(1.0f, 0.8f, 0.8f, 0.9f);
+     const MColorF lcdFgColor(1.0f, 0.1f, 0.2f, 0.15f);
+     lcdShared->setBgColor(lcdBgColor);
+     lcdShared->setFgColor(lcdFgColor);
+     
+     lcd = lcdShared;
+     rootComponent->addChild(lcdShared);
+}
 
 void Gui::refreshDesktopSize() {
     for (int i = 0; i < SDL_GetNumVideoDisplays(); i++) {
@@ -150,14 +154,23 @@ void Gui::scaleCairoContext() {
 }
 
 void Gui::draw() {
-    if (mpc->getLayeredScreen().lock()->IsDirty()) {
-        mpc->getLayeredScreen().lock()->Draw();
-        lcd.lock()->setDirty(true);
+    
+    if (mpc != nullptr) {
+        if (mpc->getLayeredScreen().lock()->IsDirty()) {
+            mpc->getLayeredScreen().lock()->Draw();
+            lcd.lock()->setDirty(true);
+        }
     }
-	rootComponent->draw(cairoContext, true);
-	SDL_UpdateTexture(sdlTexture, NULL, (unsigned char*)sdlSurface->pixels, sdlSurface->pitch);
-	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
-	SDL_RenderPresent(sdlRenderer);
+    
+    vector<MRECT*> updatedRects;
+    
+	rootComponent->draw(cairoContext, true, updatedRects);
+    
+    if (updatedRects.size() > 0) {
+        SDL_UpdateTexture(sdlTexture, NULL, (unsigned char*)sdlSurface->pixels, sdlSurface->pitch);
+        SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+        SDL_RenderPresent(sdlRenderer);
+    }
 }
 
 void Gui::setUserScale(const float& userScale) {

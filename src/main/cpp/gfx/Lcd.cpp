@@ -8,7 +8,7 @@ Lcd::Lcd(const MRECT& rect, vector<vector<bool>>* pixels, const string& name)
 	data = cairo_image_surface_get_data(surface);
 }
 
-void Lcd::draw(cairo_t* context, bool dirtyOnly) {
+void Lcd::draw(cairo_t* context, bool dirtyOnly, vector<MRECT*>& updatedRects) {
 	if (!dirtyOnly || (dirtyOnly && dirty)) {
 		prepareClip(context);
 		prepareTranslate(context);
@@ -43,9 +43,12 @@ void Lcd::draw(cairo_t* context, bool dirtyOnly) {
 
 		restoreTranslate(context);
 		restoreClip(context);
+        
+        updatedRects.push_back(&r);
+        
 		dirty = false;
 	}
-	Component::draw(context, dirtyOnly);
+	Component::draw(context, dirtyOnly, updatedRects);
 }
 
 Lcd::~Lcd()

@@ -12,7 +12,7 @@ SvgComponent::~SvgComponent()
 {
 }
 
-void SvgComponent::draw(cairo_t* context, bool dirtyOnly) {
+void SvgComponent::draw(cairo_t* context, bool dirtyOnly, vector<MRECT*>& updatedRects) {
 	
 	if (!dirtyOnly || (dirtyOnly && dirty)) {
 	
@@ -26,8 +26,11 @@ void SvgComponent::draw(cairo_t* context, bool dirtyOnly) {
 		restoreTranslate(context);
 		restoreRotate(context);
 		restoreClip(context);
+        
+        updatedRects.push_back(&r);
+        
 		dirty = false;
 	}
 
-	Component::draw(context, dirtyOnly);
+	Component::draw(context, dirtyOnly, updatedRects);
 }

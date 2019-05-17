@@ -30,7 +30,7 @@ public:
 	~Gui();
 
 private:
-	mpc::Mpc* mpc;
+    mpc::Mpc* mpc = nullptr;
 	KeyDownHandler* keyDownHandler;
 	KeyUpHandler* keyUpHandler;
 	MouseDownHandler* mouseDownHandler;
@@ -84,6 +84,9 @@ private:
     void destroySDLSurface();
     void destroySDLTexture();
     void destroyCairoSurface();
+    
+private:
+    void addLcd();
     
 public:
 	void initSDL();

@@ -77,8 +77,8 @@ bool Component::contains(const int x, const int y) {
 	return r.Contains(x, y);
 }
 
-void Component::draw(cairo_t* context, bool dirtyOnly) {
+void Component::draw(cairo_t* context, bool dirtyOnly, vector<MRECT*>& updatedRects) {
 	for (int i = 0; i < children.size(); i++) {
-		children[i]->draw(context, dirtyOnly);
+		children[i]->draw(context, dirtyOnly, updatedRects);
 	}
 }

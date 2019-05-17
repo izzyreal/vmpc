@@ -35,7 +35,7 @@ protected:
 	void restoreRotate(cairo_t* context);
 
 public:
-	virtual void draw(cairo_t* context, bool dirtyOnly);
+	virtual void draw(cairo_t* context, bool dirtyOnly, vector<MRECT*>& updatedRects);
 
 public:
 	//virtual vector<weak_ptr<Component>> getChildren() { return children; }
