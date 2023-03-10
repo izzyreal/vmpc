@@ -1,3 +1,9 @@
+For the mainline VMPC2000XL source code, please refer to https://github.com/izzyreal/vmpc-juce.
+
+The repository you're now looking at is an alternative GUI implementation of VMPC2000XL, based on https://github.com/izzyreal/mpc like the mainline JUCE implementation. Instead of JUCE, this repo uses SDL2, Cairo and PortAudio to display graphics and produce sound.
+
+It is archived and probably won't build out of the box, but if you're interested in doing your own similar thing with `mpc`, let me know.
+
 # Intended Audience
 
 You are interested in
